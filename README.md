@@ -18,6 +18,7 @@
 <p align="center">
   <img src="https://github.com/user-attachments/assets/96e521f0-5edd-4fd9-bd06-7ff18fc8075f" width="1000">
 </p>
+
 ---
 
 This addon adds new blocks, items and mechanics to the mod Create.
@@ -33,6 +34,13 @@ This addon adds new blocks, items and mechanics to the mod Create.
 * Beam Condenser: Condense up to three beams into one combining its properties
 * Beam Focuser: New type of recipe based on beam characteristics
 
+---
+
+## Different ways to generate light
+
+<p align="center">
+      <img src="https://github.com/luccaPossamai/optical/blob/1.21.1/src/main/resources/sources.png?raw=true" width="1000">
+</p>
 
 ---
 
