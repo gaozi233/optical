@@ -38,6 +38,9 @@ This addon adds new blocks, items and mechanics to the mod Create.
 
 ## Different ways to generate light
 
+
+Produce eletromagnetic waves with rotational force
+
 <p align="center">
       <img src="https://github.com/luccaPossamai/optical/blob/1.21.1/src/main/resources/sources.png?raw=true" width="1000">
 </p>
@@ -46,12 +49,31 @@ This addon adds new blocks, items and mechanics to the mod Create.
 
 ## New Receptor States
 
+Transform eletromagnetic waves back to rotational force
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/1db34baf-dd84-4376-9db7-771670497b0b" width="1000">
+  <img src="https://github.com/luccaPossamai/optical/blob/1.21.1/src/main/resources/receptors.png?raw=true" width="1000">
 </p>
 
 ---
 
+
+## Retextured Optical Sensor
+
+A way to light ambients with style
+<p align="center">
+  <img src="https://github.com/luccaPossamai/optical/blob/1.21.1/src/main/resources/sensors.png?raw=true" width="1000">
+</p>
+
+---
+
+## New Components
+
+Explore some of the other components of the mod (only stable on version 0.4)
+<p align="center">
+  <img src="https://github.com/luccaPossamai/optical/blob/1.21.1/src/main/resources/components.png?raw=true" width="1000">
+</p>
+
+---
 
 All the crafts can be found with the JEI mod, and most additional mechanics can be explored with the Ponder (Create Mod) system.
 
