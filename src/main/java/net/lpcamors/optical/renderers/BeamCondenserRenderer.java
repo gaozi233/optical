@@ -1,0 +1,23 @@
+package net.lpcamors.optical.renderers;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
+
+import net.lpcamors.optical.blocks.beam_condenser.BeamCondenserBlockEntity;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
+
+public class BeamCondenserRenderer extends SafeBlockEntityRenderer<BeamCondenserBlockEntity> {
+
+    public BeamCondenserRenderer(Context context) {
+    }
+
+    @Override
+    protected void renderSafe(BeamCondenserBlockEntity be, float partialTicks, PoseStack ms,
+            MultiBufferSource buffer, int light, int overlay) {
+        if (be.shouldRenderBeam()) {
+            OpticalSourceRenderer.renderLaserBeam(be, be.getBlockState(), ms, buffer);
+        }
+    }
+
+}

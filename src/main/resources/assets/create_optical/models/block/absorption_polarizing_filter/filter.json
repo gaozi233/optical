@@ -1,0 +1,52 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"render_type": "minecraft:transparent",
+	"texture_size": [32, 32],
+	"textures": {
+		"0": "create_optical:block/absorption_polarizing_filter/absorption_polarizing_filter",
+		"particle": "create_optical:block/absorption_polarizing_filter/absorption_polarizing_filter"
+	},
+	"elements": [
+		{
+			"from": [9.01, 3, 3],
+			"to": [8.01, 13, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [1, 0, 0]},
+			"faces": {
+				"north": {"uv": [10, 0.5, 10.5, 5.5], "rotation": 180, "texture": "#0"},
+				"east": {"uv": [10.5, 0.5, 15.5, 5.5], "rotation": 180, "texture": "#0"},
+				"south": {"uv": [10.5, 6, 15.5, 5.5], "rotation": 90, "texture": "#0"},
+				"up": {"uv": [10.5, 0, 15.5, 0.5], "rotation": 90, "texture": "#0"},
+				"down": {"uv": [15.5, 0.5, 16, 5.5], "texture": "#0"}
+			}
+		},
+		{
+			"from": [8, 3, 3],
+			"to": [7, 13, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [10.5, 6, 15.5, 5.5], "rotation": 90, "texture": "#0"},
+				"south": {"uv": [10, 0.5, 10.5, 5.5], "rotation": 180, "texture": "#0"},
+				"west": {"uv": [10.5, 0.5, 15.5, 5.5], "rotation": 180, "texture": "#0"},
+				"up": {"uv": [10.5, 0, 15.5, 0.5], "rotation": 270, "texture": "#0"},
+				"down": {"uv": [15.5, 0.5, 16, 5.5], "rotation": 180, "texture": "#0"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "group",
+			"origin": [0, 0, 0],
+			"color": 0,
+			"children": [
+				{
+					"name": "group",
+					"origin": [0, 0, 0],
+					"color": 0,
+					"children": [0, 1]
+				}
+			]
+		}
+	]
+}

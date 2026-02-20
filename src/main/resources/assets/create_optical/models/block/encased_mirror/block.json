@@ -1,0 +1,20 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"render_type": "minecraft:cutout_mipped",
+	"textures": {
+		"1": "create:block/gearbox",
+		"2": "create:block/funnel/andesite_funnel_frame",
+		"3": "create:block/andesite_casing",
+		"particle": "create:block/andesite_casing"
+	},
+	"groups": [
+		{
+			"name": "group",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": []
+		}
+	]
+}

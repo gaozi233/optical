@@ -1,0 +1,58 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"render_type": "minecraft:solid",
+	"textures": {
+		"1": "create_optical:block/encased_mirror/mirror"
+	},
+	"elements": [
+		{
+			"from": [3, 3, 5],
+			"to": [13, 13, 11],
+			"rotation": {"angle": -45, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [10, 10, 0, 0], "rotation": 90, "texture": "#1"},
+				"east": {"uv": [6, 10, 16, 16], "rotation": 90, "texture": "#1"},
+				"south": {"uv": [10, 0, 0, 10], "rotation": 90, "texture": "#1"},
+				"west": {"uv": [6, 10, 16, 16], "rotation": 90, "texture": "#1"},
+				"up": {"uv": [10, 0, 16, 10], "rotation": 90, "texture": "#1"},
+				"down": {"uv": [10, 0, 16, 10], "rotation": 90, "texture": "#1"}
+			}
+		},
+		{
+			"from": [5, 13, 5],
+			"to": [11, 14, 11],
+			"rotation": {"angle": -45, "axis": "y", "origin": [8, 19, 8]},
+			"faces": {
+				"north": {"uv": [0, 15, 6, 16], "rotation": 180, "texture": "#1"},
+				"east": {"uv": [5, 10, 6, 16], "rotation": 90, "texture": "#1"},
+				"south": {"uv": [0, 10, 6, 11], "texture": "#1"},
+				"west": {"uv": [0, 10, 1, 16], "rotation": 90, "texture": "#1"},
+				"up": {"uv": [0, 10, 6, 16], "rotation": 90, "texture": "#1"},
+				"down": {"uv": [0, 10, 6, 16], "rotation": 90, "texture": "#1"}
+			}
+		},
+		{
+			"from": [5, 2, 5],
+			"to": [11, 3, 11],
+			"rotation": {"angle": -45, "axis": "y", "origin": [8, 0, 8]},
+			"faces": {
+				"north": {"uv": [0, 15, 6, 16], "rotation": 180, "texture": "#1"},
+				"east": {"uv": [5, 10, 6, 16], "rotation": 90, "texture": "#1"},
+				"south": {"uv": [0, 10, 6, 11], "texture": "#1"},
+				"west": {"uv": [0, 10, 1, 16], "rotation": 90, "texture": "#1"},
+				"up": {"uv": [0, 10, 6, 16], "rotation": 90, "texture": "#1"},
+				"down": {"uv": [0, 10, 6, 16], "rotation": 90, "texture": "#1"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "group",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0, 1, 2]
+		}
+	]
+}

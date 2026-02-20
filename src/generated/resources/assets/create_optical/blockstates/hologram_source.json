@@ -1,0 +1,32 @@
+{
+  "variants": {
+    "axis=x,negative_connection=false,positive_connection=false": {
+      "model": "create_optical:block/hologram_source/block_not_connected",
+      "y": 90
+    },
+    "axis=x,negative_connection=false,positive_connection=true": {
+      "model": "create_optical:block/hologram_source/block_connected_positive",
+      "y": 90
+    },
+    "axis=x,negative_connection=true,positive_connection=false": {
+      "model": "create_optical:block/hologram_source/block_connected_negative",
+      "y": 90
+    },
+    "axis=x,negative_connection=true,positive_connection=true": {
+      "model": "create_optical:block/hologram_source/block_connected",
+      "y": 90
+    },
+    "axis=z,negative_connection=false,positive_connection=false": {
+      "model": "create_optical:block/hologram_source/block_not_connected"
+    },
+    "axis=z,negative_connection=false,positive_connection=true": {
+      "model": "create_optical:block/hologram_source/block_connected_positive"
+    },
+    "axis=z,negative_connection=true,positive_connection=false": {
+      "model": "create_optical:block/hologram_source/block_connected_negative"
+    },
+    "axis=z,negative_connection=true,positive_connection=true": {
+      "model": "create_optical:block/hologram_source/block_connected"
+    }
+  }
+}

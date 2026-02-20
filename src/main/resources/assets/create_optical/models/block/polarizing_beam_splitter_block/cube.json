@@ -1,0 +1,31 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"render_type": "minecraft:transparent",
+	"texture_size": [32, 32],
+	"textures": {
+		"1": "create_optical:block/polarizing_beam_splitter_block/polarizing_beam_splitter_cube"
+	},
+	"elements": [
+		{
+			"from": [2, 1, 2],
+			"to": [14, 15, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, -16, 0]},
+			"faces": {
+				"north": {"uv": [6, 0, 13, 6], "rotation": 90, "texture": "#1"},
+				"east": {"uv": [6, 0, 13, 6], "rotation": 90, "texture": "#1"},
+				"south": {"uv": [6, 0, 13, 6], "rotation": 90, "texture": "#1"},
+				"west": {"uv": [6, 0, 13, 6], "rotation": 90, "texture": "#1"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "group",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0]
+		}
+	]
+}

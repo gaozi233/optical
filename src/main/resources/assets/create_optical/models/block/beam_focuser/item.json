@@ -1,0 +1,112 @@
+
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"ambientocclusion": false,
+	"render_type": "minecraft:cutout_mipped",
+	"texture_size": [32, 32],
+	"textures": {
+		"0": "create:block/axis",
+		"1": "create:block/axis_top",
+		"8": "create_optical:block/beam_focuser/base",
+		"laser": "create_optical:block/optical_source/optical_source_laser"
+	},
+	"elements": [
+		{
+			"name": "Inner",
+			"from": [3, 3, 1],
+			"to": [13, 13, 15],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 10, 8]},
+			"faces": {
+				"north": {"uv": [0, 5, 5, 10], "rotation": 180, "texture": "#8"},
+				"east": {"uv": [0, 0, 7, 5], "texture": "#8"},
+				"south": {"uv": [0, 5, 5, 10], "rotation": 180, "texture": "#8"},
+				"west": {"uv": [0, 0, 7, 5], "texture": "#8"},
+				"up": {"uv": [0, 0, 7, 5], "rotation": 90, "texture": "#8"},
+				"down": {"uv": [0, 0, 7, 5], "rotation": 90, "texture": "#8"}
+			}
+		},
+		{
+			"name": "Inner",
+			"from": [5.5, 12, 5.5],
+			"to": [10.5, 14, 10.5],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 21, 8]},
+			"faces": {
+				"north": {"uv": [4, 7.5, 3, 5], "rotation": 90, "texture": "#laser"},
+				"east": {"uv": [3, 2.5, 4, 5], "rotation": 270, "texture": "#laser"},
+				"south": {"uv": [4, 0, 3, 2.5], "rotation": 90, "texture": "#laser"},
+				"west": {"uv": [4, 2.5, 3, 5], "rotation": 90, "texture": "#laser"},
+				"up": {"uv": [4, 0, 6.5, 2.5], "rotation": 180, "texture": "#laser"}
+			}
+		},
+        {
+            "name": "Axis",
+            "from": [6, 6, 0],
+            "to": [10, 10, 16],
+            "rotation": {"angle": 0, "axis": "z", "origin": [8, 8, 8]},
+            "faces": {
+                "north": {"uv": [6, 6, 10, 10], "rotation": 270, "texture": "#1"},
+                "east": {"uv": [6, 0, 10, 16], "rotation": 270, "texture": "#0"},
+                "south": {"uv": [6, 6, 10, 10], "rotation": 270, "texture": "#1"},
+                "west": {"uv": [6, 0, 10, 16], "rotation": 90, "texture": "#0"},
+                "up": {"uv": [6, 0, 10, 16], "rotation": 180, "texture": "#0"},
+                "down": {"uv": [6, 0, 10, 16], "texture": "#0"}
+            }
+        },
+		{
+			"name": "Inner",
+			"from": [2, 2, 2],
+			"to": [14, 4, 14],
+			"rotation": {"angle": 0, "axis": "x", "origin": [5, 9, 8]},
+			"faces": {
+				"north": {"uv": [14.5, 0, 15.5, 6], "rotation": 90, "texture": "#8"},
+				"east": {"uv": [14.5, 0, 15.5, 6], "rotation": 90, "texture": "#8"},
+				"south": {"uv": [14.5, 6, 15.5, 0], "rotation": 90, "texture": "#8"},
+				"west": {"uv": [14.5, 0, 15.5, 6], "rotation": 90, "texture": "#8"},
+				"up": {"uv": [8, 0, 14, 6], "texture": "#8"},
+				"down": {"uv": [8, 0, 14, 6], "rotation": 90, "texture": "#8"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.375, 0.375, 0.375]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.375, 0.375, 0.375]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, 45, 0],
+			"scale": [0.4, 0.4, 0.4]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, -135, 0],
+			"scale": [0.4, 0.4, 0.4]
+		},
+		"ground": {
+			"translation": [0, 3, 0],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"gui": {
+			"rotation": [30, 45, 0],
+			"scale": [0.625, 0.625, 0.625]
+		},
+		"fixed": {
+			"rotation": [0, -180, 0],
+			"scale": [0.5, 0.5, 0.5]
+		}
+	},
+	"groups": [
+		{
+			"name": "body",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0, 1, 2]
+		}
+	]
+}
