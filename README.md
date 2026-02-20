@@ -11,29 +11,9 @@ Create Mod addon based on transferring rotational force by light.
 
 ---
 
-## ⭐ Featured Block Showcase
-
-<table align="center">
-<tr>
-<td align="center" width="320">
-
-
-### 🔹 NEW BLOCK NAME HERE
-
-<img src="https://github.com/luccaPossamai/optical/blob/1.21.1/src/main/resources/output.gif?raw=true" width="280"/>
-
-
-Short description of what this block does.
-(Replace this text)
-
-</td>
-</tr>
-</table>
-
----
-
-![Base Profile 2024 09 18 - 21 01 25 05 (2)](https://github.com/user-attachments/assets/96e521f0-5edd-4fd9-bd06-7ff18fc8075f)
-
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/96e521f0-5edd-4fd9-bd06-7ff18fc8075f" width="1000">
+</p>
 This addon adds new blocks, items and mechanics to the mod Create.
 
 ### Included mechanics
@@ -46,6 +26,9 @@ This addon adds new blocks, items and mechanics to the mod Create.
 * Beam Splitter Cube: Split the beam in two and polarize the resultant beams perpendicularly
 * Beam Condenser: Condense up to three beams into one combining its properties
 * Beam Focuser: New type of recipe based on beam characteristics
+
+
+
 
 ---
 
@@ -61,12 +44,5 @@ All the crafts can be found with the JEI mod, and most additional mechanics can 
 
 ![receptor](https://github.com/user-attachments/assets/1db34baf-dd84-4376-9db7-771670497b0b)
 
-## Optical Device application required
 
-![receptor2](https://github.com/user-attachments/assets/643bc3c0-6e85-4350-9d8c-71625562b4fb)
 
----
-
-## Copper Legacy Texture added
-
-![copper\_title](https://github.com/user-attachments/assets/e956b2d0-5da2-4832-8691-be5ab2ebb4fb)
