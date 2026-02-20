@@ -4,16 +4,22 @@
 
 
 <p align="center">
-  <img src="https://github.com/luccaPossamai/optical/blob/1.21.1/src/main/resources/version.png?raw=true" width="500">
+  <img src="https://github.com/luccaPossamai/optical/blob/1.21.1/src/main/resources/version.png?raw=true" width="400">
 </p>
 
-Create Mod addon based on transferring rotational force by light.
+
+<p align="center">
+  <img src="https://github.com/luccaPossamai/optical/blob/1.21.1/src/main/resources/phrase.png?raw=true" width="1200">
+</p>
+
 
 ---
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/96e521f0-5edd-4fd9-bd06-7ff18fc8075f" width="1000">
 </p>
+---
+
 This addon adds new blocks, items and mechanics to the mod Create.
 
 ### Included mechanics
@@ -28,21 +34,18 @@ This addon adds new blocks, items and mechanics to the mod Create.
 * Beam Focuser: New type of recipe based on beam characteristics
 
 
+---
 
+## New Receptor States
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1db34baf-dd84-4376-9db7-771670497b0b" width="1000">
+</p>
 
 ---
 
-![rec1](https://github.com/user-attachments/assets/07ce17f6-aa7a-467a-be37-8d406819df47)
 
 All the crafts can be found with the JEI mod, and most additional mechanics can be explored with the Ponder (Create Mod) system.
 
 ---
-
-![Base Profile 2024 06 02 - 01 34 16 02](https://github.com/luccaPossamai/optical/assets/110493821/b7ecf37e-feee-4f32-8e9e-2031a0f22a6d)
-
-## New Receptor States
-
-![receptor](https://github.com/user-attachments/assets/1db34baf-dd84-4376-9db7-771670497b0b)
-
-
 
