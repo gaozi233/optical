@@ -1,25 +1,43 @@
+![minecraft_title](https://github.com/user-attachments/assets/fe0a6a45-953d-4515-ba1a-1217da721642)
 
-Installation information
-=======
+A mod based on transfer rotational force by light.
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+![Base Profile 2024 09 18 - 21 01 25 05 (2)](https://github.com/user-attachments/assets/96e521f0-5edd-4fd9-bd06-7ff18fc8075f)
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+This addon adds new blocks, items and mechanics to the mod create.
+Such as:
+ - Optical Source: Emit different types of beams based on the rotational force applied;
+ - Optical Receptor: Transform the received beam into rotational force based on its properties;
+ - Optical Sensor: Emit redstone sinal based on the incident beam properties;
+ - Mirror: Reflect the beam perpendicularly;
+ - Polarizing Filter: Polarize the beam(duh);
+ - Beam Splitter Cube: Split the beam in two and polarize the resultant beams perpendicularly;
+ - Beam Condenser: Condenser up to three beams into one combining its properties;
+ - Beam Focuser: new type of recipe based on beam's characteristics.
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+![rec1](https://github.com/user-attachments/assets/07ce17f6-aa7a-467a-be37-8d406819df47)
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+All the crafts can be found with the JEI mod, and most of the additional mechanics can be found with the ponder(Create Mod) system.
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+
+![Base Profile 2024 06 02 - 01 34 16 02](https://github.com/luccaPossamai/optical/assets/110493821/b7ecf37e-feee-4f32-8e9e-2031a0f22a6d)
+
+New Receptor States
+
+![receptor](https://github.com/user-attachments/assets/1db34baf-dd84-4376-9db7-771670497b0b)
+
+Optical Device application required
+
+![receptor2](https://github.com/user-attachments/assets/643bc3c0-6e85-4350-9d8c-71625562b373)
+
+
+
+Copper Legacy Texture added:
+![copper_title](https://github.com/user-attachments/assets/e956b2d0-5da2-4832-8691-be5ab2ebb4fb)
+
+
+
+
+
+
+
