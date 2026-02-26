@@ -82,3 +82,7 @@ All the crafts can be found with the JEI mod, and most additional mechanics can 
 
 ---
 
+Some things may break on changing versions. This mod is developed by one person and occasionally receives contributions via GitHub. Please understand that this project is treated as a hobby and not a full-time job.
+
+---
+
