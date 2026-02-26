@@ -12,7 +12,6 @@
     - [x] Beam Modulator;
 - [x] Add beam signal communication;
 - [x] Fix HologramSource weird behaviour;
-- [ ] Fix some beam render bugs
-- [ ] Revisit old ponder and add for new blocks
-- [ ] Check old bugs and issues
-- [ ] 
+- [x] Fix some beam render bugs
+- [x] Revisit old ponder and add for new blocks
+- [x] Check old bugs and issues
