@@ -1,11 +1,11 @@
 package net.lpcamors.optical.recipes;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.compat.jei.category.animations.AnimatedKinetics;
+
+import org.jetbrains.annotations.NotNull;
 
 import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.gui.element.GuiGameElement;
@@ -16,7 +16,7 @@ import net.minecraft.core.Direction;
 
 public class AnimatedFocus extends AnimatedKinetics {
 
-    private static final int CYCLE_TICK = 10;
+    private static final int CYCLE_TICK = 15;
     private static final float HEIGHT = 21 / 16F;
 
     private final boolean depot;
@@ -27,7 +27,6 @@ public class AnimatedFocus extends AnimatedKinetics {
 
     @Override
     public void draw(@NotNull GuiGraphics graphics, int xOffset, int yOffset) {
-        // tick += 1;
         float tic = AnimationTickHolder.getRenderTime();
         PoseStack matrixStack = graphics.pose();
         matrixStack.pushPose();
@@ -44,15 +43,15 @@ public class AnimatedFocus extends AnimatedKinetics {
         GuiGameElement.GuiRenderBuilder r = GuiGameElement.of(COPartialModels.FOCUS_BEAM)
                 .scale(scale)
                 .rotateBlock(0, 90, 0)
-                .atLocal(0, 0.3 + getYOffset(tic, 0), 0)
-                .withAlpha(0.1F);
+                .atLocal(0, -0.1 + getYOffset(tic, 0), 0)
+                .withAlpha(0.11F);
         r.render(graphics);
 
         GuiGameElement.GuiRenderBuilder r1 = GuiGameElement.of(COPartialModels.FOCUS_BEAM)
                 .scale(scale)
                 .rotateBlock(0, 90, 0)
-                .atLocal(0, 0.3 + getYOffset(tic, 1), 0)
-                .withAlpha(0.1F);
+                .atLocal(0, -0.1 + getYOffset(tic, 1), 0)
+                .withAlpha(0.11F);
         r1.render(graphics);
 
         blockElement(COBlocks.BEAM_FOCUSER.getDefaultState())
@@ -70,6 +69,7 @@ public class AnimatedFocus extends AnimatedKinetics {
     }
 
     private float getYOffset(float tick, int index) {
+        
         float pt = tick - (int) tick;
         int ticks = ((index * CYCLE_TICK / 2) + (int) tick) % CYCLE_TICK;
         return (ticks + pt) * (HEIGHT / (float) CYCLE_TICK);

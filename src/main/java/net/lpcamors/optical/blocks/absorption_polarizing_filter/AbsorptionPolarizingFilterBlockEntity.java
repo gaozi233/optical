@@ -49,7 +49,7 @@ public class AbsorptionPolarizingFilterBlockEntity extends SmartBlockEntity impl
                     .add(COLang.Prefixes.CREATE.translate(("gui.goggles.polarization")).withStyle(ChatFormatting.GRAY))
                     .forGoggles(tooltip);
             CreateLang.text("")
-                    .add(COLang.Prefixes.CREATE.translate(beamPolarization.getDescriptionId())
+                    .add(Component.translatable(beamPolarization.getDescriptionId())
                             .append(" " + beamPolarization.getsIcon()).withStyle(ChatFormatting.AQUA))
                     .forGoggles(tooltip, 1);
 

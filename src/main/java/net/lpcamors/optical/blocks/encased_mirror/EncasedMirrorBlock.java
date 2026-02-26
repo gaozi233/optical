@@ -15,13 +15,13 @@ import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import org.jetbrains.annotations.NotNull;
 
 import net.lpcamors.optical.COShapes;
+import net.lpcamors.optical.COUtils;
 import net.lpcamors.optical.blocks.COBlockEntities;
 import net.lpcamors.optical.blocks.optical_source.BeamHelper.BeamProperties;
 import net.lpcamors.optical.blocks.optical_source.GenericOpticalSourceBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
-import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -150,20 +150,19 @@ public class EncasedMirrorBlock extends DirectionalKineticBlock
         level.getBlockEntity(pos, this.getBlockEntityType()).ifPresent(a -> {
             if (a.getState() == null)
                 return;
-            if (state.getValue(FACING).getAxis().isVertical()) {
-                direction[0] = prop.direction().getClockWise();
-                if (prop.direction().getAxis().equals(Axis.Z))
-                    direction[0] = direction[0].getOpposite();
-            } else {
-                direction[0] = Direction.DOWN;
-            }
-            Direction face = state.getValue(FACING);
-            if (face.getAxisDirection().equals(AxisDirection.NEGATIVE)) {
+
+            direction[0] = COUtils
+                    .getDirectionByNormal(prop.direction().getNormal().cross(state.getValue(FACING).getNormal()));
+            if (a.getState().isParallel()) {
                 direction[0] = direction[0].getOpposite();
             }
-            if (a.getState().isParallel())
+            if (state.getValue(FACING).getAxis().isVertical() && prop.direction().getAxis().equals(Axis.Z)) {
                 direction[0] = direction[0].getOpposite();
-            direction[0] = direction[0].getOpposite();
+            }
+            if (prop.direction().getAxis().isVertical()) {
+
+                direction[0] = direction[0].getOpposite();
+            }
         });
         if (direction[0] == null)
             return null;

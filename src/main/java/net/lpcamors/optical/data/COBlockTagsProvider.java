@@ -24,10 +24,14 @@ public class COBlockTagsProvider extends BlockTagsProvider {
     @SuppressWarnings("unchecked")
     protected void addTags(HolderLookup.Provider p_256380_) {
         tag(COTags.Blocks.PENETRABLE).add(Blocks.AIR, Blocks.LIGHT, Blocks.TRIPWIRE, Blocks.REDSTONE_WIRE, Blocks.WATER,
-                Blocks.REPEATER, Blocks.COMPARATOR);
+                Blocks.REPEATER, Blocks.COMPARATOR, Blocks.DAYLIGHT_DETECTOR, Blocks.LEVER, Blocks.FLOWER_POT,
+                Blocks.COBWEB);
         tag(COTags.Blocks.PENETRABLE).addTags(
                 BlockTags.ALL_HANGING_SIGNS,
                 BlockTags.ALL_SIGNS,
+                BlockTags.CORAL_PLANTS,
+                BlockTags.CAMPFIRES,
+                BlockTags.WALL_POST_OVERRIDE,
                 BlockTags.BANNERS,
                 BlockTags.SLABS,
                 BlockTags.WOOL_CARPETS,

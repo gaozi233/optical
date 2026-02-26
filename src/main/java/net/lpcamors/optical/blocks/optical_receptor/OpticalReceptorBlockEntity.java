@@ -18,7 +18,6 @@ import net.lpcamors.optical.CreateOptical;
 import net.lpcamors.optical.blocks.optical_source.BeamHelper;
 import net.lpcamors.optical.blocks.optical_source.BeamHelper.BeamProperties;
 import net.lpcamors.optical.data.COLang;
-import net.lpcamors.optical.items.COItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -80,10 +79,13 @@ public class OpticalReceptorBlockEntity extends GeneratingKineticBlockEntity {
                 props.add(this.beamSourceInstanceMap.get(direction));
             }
         });
-        if (!props.isEmpty())
+        if (!props.isEmpty()) {
             this.initialBeamProperties = new BeamProperties.Builder(
                     this.getBlockState().getValue(OpticalReceptorBlock.FACING),
                     props).build();
+        } else {
+            this.initialBeamProperties = null;
+        }
     }
 
     public void receiveBeam(BeamHelper.BeamProperties beamProperties, boolean force) {
@@ -260,6 +262,11 @@ public class OpticalReceptorBlockEntity extends GeneratingKineticBlockEntity {
             return false;
         if (this.sensors.get(direction).isEmpty())
             return false;
+        ItemStack stack = this.sensors.get(direction).copy();
+        player.ifPresent(p -> {
+            if (!p.addItem(stack))
+                p.drop(stack, false);
+        });
         this.sensors.put(direction, ItemStack.EMPTY);
         this.update();
         return true;

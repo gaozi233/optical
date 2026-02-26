@@ -4,6 +4,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import com.mojang.serialization.MapCodec;
+import com.simibubi.create.AllItems;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.block.IBE;
@@ -163,8 +164,6 @@ public class HologramSourceBlock extends Block
             return;
         update(state, level, pos);
         level.getBlockEntity(pos, this.getBlockEntityType()).ifPresent(be -> {
-            System.out.println("This: " + pos);
-            System.out.println("Found: " + be.findController().getBlockPos());
             be.findController().updateChain();
         });
 
@@ -288,14 +287,14 @@ public class HologramSourceBlock extends Block
 
         if (!level.isClientSide) {
             if (!stack.isEmpty()) {
-                be.getProfile().setItemStack(stack.copy());
-                be.update();
+                if (!stack.is(AllItems.WRENCH)) {
+                    be.getProfile().setItemStack(stack.copy());
+                    be.update();
+                }
             } else if (f) {
                 be.getProfile().setItemStack(ItemStack.EMPTY);
                 be.update();
-            } else {
-
-            }
+            } 
         }
 
         return ItemInteractionResult.SUCCESS;

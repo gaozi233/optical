@@ -25,15 +25,18 @@ This addon adds new blocks, items and mechanics to the mod Create.
 
 ### Included mechanics
 
-* Optical Source: Emit different types of beams based on the rotational force applied
-* Optical Receptor: Transform the received beam into rotational force based on its properties
-* Optical Sensor: Emit redstone signal based on the incident beam properties
-* Mirror: Reflect the beam perpendicularly
-* Polarizing Filter: Polarize the beam (duh)
-* Beam Splitter Cube: Split the beam in two and polarize the resultant beams perpendicularly
-* Beam Condenser: Condense up to three beams into one combining its properties
-* Beam Focuser: New type of recipe based on beam characteristics
-
+* Optical Source: emit different types of beams based on the rotational force applied
+* Optical Receptor: transform the received beam into rotational force based on its properties
+* Optical Sensor: emit redstone signal based on the incident beam properties
+* Mirror: reflect the beam perpendicularly
+* Polarizing Filter: polarize the beam (duh)
+* Beam Splitter Cube: split the beam in two and polarize the resultant beams perpendicularly
+* Beam Condenser: condense up to three beams into one combining its properties
+* Beam Focuser: new type of recipe based on beam characteristics
+* Thermal Optical Source: similar to a normal source but with high su usage based on fluid aplications
+* Hologram Display: display text or items in a hologram style
+* Beam Reader: display the properties of the incident beam
+* Beam Modulator: use it to comunicate through light
 ---
 
 ## Different ways to generate light
@@ -75,7 +78,7 @@ Explore some of the other components of the mod (only stable on version 0.4)
 
 ---
 
-All the crafts can be found with the JEI mod, and most additional mechanics can be explored with the Ponder (Create Mod) system.
+All the crafts can be found with the JEI mod, and most additional mechanics can be explored with the Ponder Mod system.
 
 ---
 

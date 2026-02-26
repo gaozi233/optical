@@ -3,6 +3,7 @@ package net.lpcamors.optical.blocks;
 import com.simibubi.create.api.behaviour.display.DisplaySource;
 import com.simibubi.create.api.behaviour.display.DisplayTarget;
 import com.simibubi.create.api.stress.BlockStressValues;
+import com.simibubi.create.content.processing.AssemblyOperatorBlockItem;
 import com.simibubi.create.foundation.data.BlockStateGen;
 import com.simibubi.create.foundation.data.ModelGen;
 import com.simibubi.create.foundation.data.SharedProperties;
@@ -143,7 +144,7 @@ public class COBlocks {
             .transform(TagGen.pickaxeOnly())
             .blockstate(BlockStateGen.horizontalBlockProvider(true))
             .addLayer(() -> RenderType::solid)
-            .item()
+            .item(AssemblyOperatorBlockItem::new)
             .transform(ModelGen.customItemModel())
             .transform(COCStress.setImpact(4.0))
             .register();

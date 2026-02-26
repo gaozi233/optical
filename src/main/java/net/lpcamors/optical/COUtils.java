@@ -13,6 +13,8 @@ import net.createmod.catnip.theme.Color;
 import net.lpcamors.optical.items.COItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.item.DyeColor;
@@ -108,6 +110,13 @@ public class COUtils {
 
     public static void scalePose(PoseStack ms, double d) {
         ms.translate(d, d, d);
+    }
+
+    public static Direction getDirectionByNormal(Vec3i n) {
+        Axis axis = n.getX() != 0 ? Axis.X : n.getY() != 0 ? Axis.Y : Axis.Z;
+        AxisDirection axisDirection = n.getX() + n.getY() + n.getZ() > 0 ? AxisDirection.POSITIVE
+                : AxisDirection.NEGATIVE;
+        return Direction.fromAxisAndDirection(axis, axisDirection);
     }
 
     public static Vec3 getNormalUnitary(Direction dir) {

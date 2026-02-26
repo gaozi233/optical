@@ -8,7 +8,6 @@ import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 import org.joml.Matrix4f;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -53,16 +52,32 @@ public class CORenderTypes {
                     .setOverlayState(RenderStateShard.OVERLAY)
                     .createCompositeState(true));
 
-    public static final RenderType HOLOGRAM = RenderType.create("create_optical:hologram",
-            DefaultVertexFormat.BLOCK,
+    public static final RenderType HOLOGRAM = RenderType.create("hologram",
+            DefaultVertexFormat.NEW_ENTITY,
             VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder()
                     .setTextureState(RenderStateShard.BLOCK_SHEET)
-                    .setShaderState(RenderStateShard.RENDERTYPE_SOLID_SHADER)
-                    .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
+                    .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
+                    .setTransparencyState(RenderStateShard.ADDITIVE_TRANSPARENCY)
+                    .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
                     .setCullState(RenderStateShard.NO_CULL)
                     .setLightmapState(RenderStateShard.LIGHTMAP)
-                    .setOverlayState(RenderStateShard.NO_OVERLAY)
+                    .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                    .setOverlayState(RenderStateShard.OVERLAY)
                     .createCompositeState(true));
+
+    public static final RenderType HOLOGRAM_INNER = RenderType.create("hologram_inner",
+            DefaultVertexFormat.NEW_ENTITY,
+            VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder()
+                    .setTextureState(RenderStateShard.BLOCK_SHEET)
+                    .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
+                    .setTransparencyState(RenderStateShard.ADDITIVE_TRANSPARENCY)
+                    .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
+                    .setCullState(RenderStateShard.NO_CULL)
+                    .setLightmapState(RenderStateShard.LIGHTMAP)
+                    .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                    .setOverlayState(RenderStateShard.OVERLAY)
+                    .createCompositeState(true));
+
     public static final RenderType HOLOGRAM_SCAN = RenderType.create(
             "hologram_scan",
             DefaultVertexFormat.BLOCK,
@@ -77,14 +92,5 @@ public class CORenderTypes {
                     .setWriteMaskState(RenderStateShard.COLOR_WRITE)
                     .setLightmapState(RenderStateShard.LIGHTMAP)
                     .setCullState(RenderStateShard.NO_CULL)
-                    .createCompositeState(true));
-    RenderType HOLOGRAM_ITEM = RenderType.create("create_optical:hologram_item", DefaultVertexFormat.BLOCK,
-            VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder()
-                    .setTextureState(RenderStateShard.BLOCK_SHEET)
-                    .setShaderState(RenderStateShard.RENDERTYPE_SOLID_SHADER)
-                    .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
-                    .setCullState(RenderStateShard.NO_CULL)
-                    .setLightmapState(RenderStateShard.LIGHTMAP)
-                    .setOverlayState(RenderStateShard.NO_OVERLAY)
                     .createCompositeState(true));
 }

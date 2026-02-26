@@ -7,16 +7,13 @@ import net.lpcamors.optical.CreateOptical;
 import net.lpcamors.optical.blocks.COBlocks;
 import net.minecraft.resources.ResourceLocation;
 
-
 public class COPonderTags {
 
     public static final ResourceLocation OPTICALS = CreateOptical.loc("opticals");
 
-
     public static void register(PonderTagRegistrationHelper<ResourceLocation> helper) {
 
-		PonderTagRegistrationHelper<RegistryEntry<?, ?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
-
+        PonderTagRegistrationHelper<RegistryEntry<?, ?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
 
         helper.registerTag(OPTICALS)
                 .addToIndex()
@@ -34,7 +31,11 @@ public class COPonderTags {
                 .add(COBlocks.ABSORPTION_POLARIZING_FILTER)
                 .add(COBlocks.POLARIZING_BEAM_SPLITTER_BLOCK)
                 .add(COBlocks.OPTICAL_SENSOR)
-                .add(COBlocks.BEAM_CONDENSER);
+                .add(COBlocks.BEAM_CONDENSER)
+                .add(COBlocks.BEAM_FOCUSER)
+                .add(COBlocks.HOLOGRAM_SOURCE)
+                .add(COBlocks.BEAM_READER)
+                .add(COBlocks.BEAM_MODULATOR);
 
     }
 }

@@ -1,6 +1,7 @@
 package net.lpcamors.optical;
 
 import com.simibubi.create.AllShapes;
+
 import net.createmod.catnip.math.VoxelShaper;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
@@ -22,12 +23,8 @@ public class COShapes {
                     .forHorizontal(Direction.NORTH),
 
             ENCASED_MIRROR = shape(0, 0, 0, 16, 2, 16)
-                    .add(3, 2, 3, 13, 14, 13)
                     .add(0, 14, 0, 16, 16, 16)
-                    .add(1, 2, 1, 3, 14, 3)
-                    .add(13, 2, 1, 15, 14, 3)
-                    .add(13, 2, 13, 15, 14, 15)
-                    .add(1, 2, 13, 3, 14, 15)
+                    .add(1, 2, 1, 15, 14, 15)
                     .forDirectional(Direction.UP),
             ENCASED_MIRROR_SHAFT = shape(5, 0, 5, 11, 16, 11)
                     .forDirectional(Direction.UP),
@@ -46,7 +43,7 @@ public class COShapes {
                     .add(1.5, 3.5, 3.5, 14.5, 7.5, 12.5).forHorizontalAxis(),
             BEAM_READER = shape(3, 0, 1, 13, 5.5, 15)
                     .add(5, 5, 5, 11, 11, 11)
-                    .add(5.5, 5.5, 0, 11.5, 11.5, 16)
+                    .add(5.5, 5.5, 0, 10.5, 10.5, 16)
                     .forHorizontal(Direction.NORTH),
             BEAM_MODULATOR = shape(3, 0, 2, 13, 2, 14)
                     .add(5, 2, 4, 11, 4, 8)

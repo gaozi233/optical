@@ -16,6 +16,7 @@ import net.createmod.catnip.lang.Lang;
 import net.createmod.catnip.platform.CatnipServices;
 import net.lpcamors.optical.COUtils;
 import net.lpcamors.optical.CreateOptical;
+import net.lpcamors.optical.blocks.hologram_source.HologramSourceBlock;
 import net.lpcamors.optical.blocks.optical_source.BeamHelper.BeamProperties;
 import net.lpcamors.optical.blocks.optical_source.BeamHelper.BeamType;
 import net.lpcamors.optical.blocks.optical_source.BeamHelper.BlockContext;
@@ -98,6 +99,7 @@ public abstract class GenericOpticalSourceBlockEntity extends KineticBlockEntity
             if (!list.contains(pos))
                 toRemove.add(pos);
         });
+
         toRemove.forEach(pos -> {
             BlockState state = this.level.getBlockState(pos);
             if (state.getBlock() instanceof IBeamActivator iActivator) {
@@ -105,6 +107,23 @@ public abstract class GenericOpticalSourceBlockEntity extends KineticBlockEntity
             }
             this.activators.remove(pos);
 
+        });
+
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
+        this.onRemove();
+    }
+
+    final void onRemove() {
+        this.sections.forEach(section -> {
+            BlockPos pos = new BlockPos(section.toPos());
+            BlockState state = this.level.getBlockState(pos);
+            if (state.getBlock() instanceof IBeamActivator iActivator) {
+                iActivator.onRemoveBeam(level, state, pos, this.activators.get(pos));
+            }
         });
     }
 
@@ -173,7 +192,7 @@ public abstract class GenericOpticalSourceBlockEntity extends KineticBlockEntity
 
     public final boolean shouldRenderBeam() {
         return this.isActive() && this.getInitialBeamProperties() != null
-                && this.getInitialBeamProperties().beamType().visible();
+                && this.getInitialBeamProperties().isVisible();
     }
 
     public final int getBeamRadiusCount() {
@@ -202,18 +221,25 @@ public abstract class GenericOpticalSourceBlockEntity extends KineticBlockEntity
                         (int) Math.pow(0, n.getZ()));
                 Vec3i fromPosNormal = COUtils.multiplyVec3i(fromPos, n);
                 Vec3i toPosVar = toPos;
+                boolean f = false;
                 Entity irradiated = entities.get(0);
                 for (Entity entity : entities) {
                     double d1 = fromPosNormal.distSqr(COUtils.multiplyVec3i(toPosVar, n));
                     double d2 = fromPosNormal.distSqr(COUtils.multiplyVec3i(entity.blockPosition(), n));
-                    if (d1 > d2) {
+                    // LITERALLY JUST TO FIX ODD VISUAL BEHAVIOUR
+                    boolean f1 = entity.getBlockStateOn()
+                            .getBlock() instanceof HologramSourceBlock;
+                    if (d1 > d2 && !f1) {
                         toPosVar = COUtils.multiplyVec3i(fromPos, m)
                                 .offset(COUtils.multiplyVec3i(entity.blockPosition(), n));
                         irradiated = entity;
+                        f = true;
                     }
                 }
-                section = new BeamSection(fromPos, toPosVar, beamProperties);
-                beamProperties.incideOnEntity(irradiated);
+                if (f) {
+                    section = new BeamSection(fromPos, toPosVar, beamProperties);
+                    beamProperties.incideOnEntity(irradiated);
+                }
             } else {
                 entities.forEach(beamProperties::incideOnEntity);
             }
@@ -292,6 +318,7 @@ public abstract class GenericOpticalSourceBlockEntity extends KineticBlockEntity
 
     public static void goggleTooltip(List<Component> tooltip, boolean isPlayerSneaking,
             OpticalSourceBlockEntity be) {
+
         Lang.builder("tooltip").translate(CreateOptical.ID + ".gui.goggles.beam_properties").forGoggles(tooltip);
 
         if (Math.abs(be.getSpeed()) > 0) {
@@ -316,7 +343,7 @@ public abstract class GenericOpticalSourceBlockEntity extends KineticBlockEntity
                 .add(COLang.Prefixes.CREATE.translate(("gui.goggles.polarization")).withStyle(ChatFormatting.GRAY))
                 .forGoggles(tooltip);
         Lang.builder("")
-                .add(COLang.Prefixes.CREATE.translate(beamPolarization.getTranslationKey())
+                .add(Component.translatable(beamPolarization.getTranslationKey())
                         .append(" " + beamPolarization.getsIcon()).withStyle(ChatFormatting.AQUA))
                 .forGoggles(tooltip, 1);
 

@@ -65,7 +65,7 @@ public class HologramSourceBlockEntity extends SmartBlockEntity
     @Override
     public void lazyTick() {
         super.lazyTick();
-        if (this.isController()) {
+        if (this.isController() && !this.level.isClientSide) {
             this.updateChain();
         }
     }

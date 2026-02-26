@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.content.kinetics.base.ShaftRenderer;
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringRenderer;
 
+import dev.engine_room.flywheel.api.visualization.VisualizationManager;
 import net.createmod.catnip.render.CachedBuffers;
 import net.lpcamors.optical.COPartialModels;
 import net.lpcamors.optical.CORenderTypes;
@@ -15,7 +16,7 @@ import net.minecraft.world.level.lighting.LightEngine;
 
 public class BeamFocuserRenderer extends ShaftRenderer<BeamFocuserBlockEntity> {
 
-    private static final int CYCLE_TICK = 10;
+    private static final int CYCLE_TICK = 15;
     private static final float HEIGHT = 21 / 16F;
 
     public BeamFocuserRenderer(BlockEntityRendererProvider.Context context) {
@@ -28,7 +29,7 @@ public class BeamFocuserRenderer extends ShaftRenderer<BeamFocuserBlockEntity> {
             int overlay) {
         super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
         FilteringRenderer.renderOnBlockEntity(be, partialTicks, ms, buffer, light, overlay);
-        //if (VisualizationManager.supportsVisualization(be.getLevel())) {
+        if (VisualizationManager.supportsVisualization(be.getLevel())) {
             if (be.processingTicks >= 5 && be.getOptionalBeamProperties().isPresent()) {
                 Vec3i color = be.getOptionalBeamProperties().get().color();
                 ms.translate(0, 4 / 16f, 0);
@@ -51,7 +52,7 @@ public class BeamFocuserRenderer extends ShaftRenderer<BeamFocuserBlockEntity> {
                     ms.popPose();
                 }
             }
-        //}
+        }
     }
 
     private float getYOffset(BeamFocuserBlockEntity be, float pt, int index) {

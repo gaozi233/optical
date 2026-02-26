@@ -2,8 +2,6 @@ package net.lpcamors.optical.renderers;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.function.Consumer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -50,19 +48,12 @@ import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.ClientHooks;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
 public class HologramSourceRenderer extends SafeBlockEntityRenderer<HologramSourceBlockEntity> {
 
-    // See @ItemRenderer
-    private static final ModelResourceLocation TRIDENT_MODEL = ModelResourceLocation
-            .inventory(ResourceLocation.withDefaultNamespace("trident"));
-    private static final ModelResourceLocation SPYGLASS_MODEL = ModelResourceLocation
-            .inventory(ResourceLocation.withDefaultNamespace("spyglass"));
     private static final Map<Item, ModelResourceLocation> CUSTOM_ITEM_MODEL = Map.of(
             Items.TRIDENT, ModelResourceLocation.inventory(ResourceLocation.withDefaultNamespace("trident")),
-            Items.SPYGLASS, ModelResourceLocation.inventory(ResourceLocation.withDefaultNamespace("spyglass"))
-    );
+            Items.SPYGLASS, ModelResourceLocation.inventory(ResourceLocation.withDefaultNamespace("spyglass")));
 
     public HologramSourceRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -175,59 +166,6 @@ public class HologramSourceRenderer extends SafeBlockEntityRenderer<HologramSour
 
     }
 
-    void renderItem(ItemStack heldItem, HologramSourceBlockEntity be, float partialTicks, PoseStack ms,
-            MultiBufferSource buffer,
-            int light, int overlay) {
-
-        BeamHelper.BeamProperties beamProperties = be.getOptionalBeamProperties().get();
-        ItemRenderer itemRenderer = Minecraft.getInstance()
-                .getItemRenderer();
-        HologramSourceProfile profile = be.getProfile();
-        Vec3 vec3 = be.getProjectionBox().getCenter().subtract(Vec3.atLowerCornerOf(be.getBlockPos()));
-        BakedModel bakedmodel = itemRenderer.getModel(heldItem, be.getLevel(), null, 0),
-                bakedmodel1 = itemRenderer.getModel(heldItem, be.getLevel(), null, 0);
-        var ts = TransformStack.of(ms);
-
-        float normalAlpha = COConfigs.client().hologramDisplay.normalTransparency.getF(),
-                additiveAlpha = COConfigs.client().hologramDisplay.additiveTransparency.getF();
-        normalAlpha *= COConfigs.client().hologramDisplay.generalTransparency.getF();
-        additiveAlpha *= COConfigs.client().hologramDisplay.generalTransparency.getF();
-
-        boolean blockItem = itemRenderer.getModel(heldItem, null, null, 0)
-                .isGui3d();
-        double radius = (blockItem ? 1.3 : 0.7),
-                sec = (be.getTickCount() + partialTicks) / 20f,
-                rot;
-
-        if (heldItem.is(Items.TRIDENT) || heldItem.is(Items.SPYGLASS))
-            radius *= 0.5;
-
-        if (be.hasFixedAngle()) {
-            rot = profile.getFixedAngle();
-        } else {
-            rot = profile.getAngleVelocity() * sec;
-            if (profile.getDisplayMode().equals(HologramSourceBlockEntity.Mode.ROTATING_CLOCKWISE)) {
-                rot = -rot;
-            }
-        }
-
-        ms.pushPose();
-        ts.translate(vec3).scale((float) (be.getProfile().getConnectionLength() * radius));
-        this.render(beamProperties, itemRenderer, heldItem, ItemDisplayContext.FIXED, false, ms, buffer,
-                LightTexture.FULL_BRIGHT, overlay, bakedmodel,
-                buffer.getBuffer(CORenderTypes.HOLOGRAM), normalAlpha, AngleHelper.rad(rot));
-
-        ms.popPose();
-
-        ms.pushPose();
-        ts.translate(vec3).scale((float) (be.getProfile().getConnectionLength() * radius * 1.1));
-        this.render(beamProperties, itemRenderer, heldItem, ItemDisplayContext.FIXED, false, ms, buffer,
-                LightTexture.FULL_BRIGHT, overlay, bakedmodel1,
-                buffer.getBuffer(CORenderTypes.HOLOGRAM), additiveAlpha, AngleHelper.rad(rot));
-        ms.popPose();
-
-    }
-
     private static void renderPane(PoseStack ms, MultiBufferSource buffer, float width, float height, Vec3i color,
             int line, float ticks) {
         VertexConsumer vc = buffer.getBuffer(CORenderTypes.HOLOGRAM_SCAN);
@@ -272,21 +210,62 @@ public class HologramSourceRenderer extends SafeBlockEntityRenderer<HologramSour
                 ms.last().pose(), buffer, LightTexture.FULL_BRIGHT);
     }
 
-    static void renderItemWithRenderType(ItemStack stack, PoseStack poseStack,
-            MultiBufferSource buffer, int light, int overlay,
-            VertexConsumer vc, Consumer<PoseStack> transform) {
+    void renderItem(ItemStack heldItem, HologramSourceBlockEntity be, float partialTicks, PoseStack ms,
+            MultiBufferSource buffer,
+            int light, int overlay) {
 
-        Minecraft mc = Minecraft.getInstance();
-        ItemRenderer renderer = mc.getItemRenderer();
+        BeamHelper.BeamProperties beamProperties = be.getOptionalBeamProperties().get();
+        ItemRenderer itemRenderer = Minecraft.getInstance()
+                .getItemRenderer();
+        HologramSourceProfile profile = be.getProfile();
+        Vec3 vec3 = be.getProjectionBox().getCenter().subtract(Vec3.atLowerCornerOf(be.getBlockPos()));
+        BakedModel bakedmodel = itemRenderer.getModel(heldItem, be.getLevel(), null, 0),
+                bakedmodel1 = itemRenderer.getModel(heldItem, be.getLevel(), null, 0);
+        if (bakedmodel.isCustomRenderer()) {
+            heldItem = new ItemStack(Items.BARRIER);
+            bakedmodel = itemRenderer.getModel(heldItem, be.getLevel(), null, 0);
+            bakedmodel1 = itemRenderer.getModel(heldItem, be.getLevel(), null, 0);
+        }
+        var ts = TransformStack.of(ms);
 
-        BakedModel model = renderer.getModel(stack, null, null, 0);
+        float normalAlpha = COConfigs.client().hologramDisplay.normalTransparency.getF(),
+                additiveAlpha = COConfigs.client().hologramDisplay.additiveTransparency.getF();
+        normalAlpha *= COConfigs.client().hologramDisplay.generalTransparency.getF();
+        additiveAlpha *= COConfigs.client().hologramDisplay.generalTransparency.getF();
 
-        poseStack.pushPose();
+        boolean blockItem = itemRenderer.getModel(heldItem, null, null, 0)
+                .isGui3d();
+        double radius = (blockItem ? 1.3 : 0.7),
+                sec = (be.getTickCount() + partialTicks) / 20f,
+                rot;
 
-        transform.accept(poseStack);
-        renderer.renderModelLists(model, stack, light, overlay, poseStack, vc);
+        if (heldItem.is(Items.TRIDENT) || heldItem.is(Items.SPYGLASS))
+            radius *= 0.5;
 
-        poseStack.popPose();
+        if (be.hasFixedAngle()) {
+            rot = profile.getFixedAngle();
+        } else {
+            rot = profile.getAngleVelocity() * sec;
+            if (profile.getDisplayMode().equals(HologramSourceBlockEntity.Mode.ROTATING_CLOCKWISE)) {
+                rot = -rot;
+            }
+        }
+
+        ms.pushPose();
+        ts.translate(vec3).scale((float) (be.getProfile().getConnectionLength() * radius));
+        this.render(beamProperties, itemRenderer, heldItem, ItemDisplayContext.FIXED, false, ms, buffer,
+                LightTexture.FULL_BRIGHT, overlay, bakedmodel,
+                buffer.getBuffer(CORenderTypes.HOLOGRAM_INNER), normalAlpha, AngleHelper.rad(rot));
+
+        ms.popPose();
+
+        ms.pushPose();
+        ts.translate(vec3).scale((float) (be.getProfile().getConnectionLength() * radius * 1.1));
+        this.render(beamProperties, itemRenderer, heldItem, ItemDisplayContext.FIXED, false, ms, buffer,
+                LightTexture.FULL_BRIGHT, overlay, bakedmodel1,
+                buffer.getBuffer(CORenderTypes.HOLOGRAM), additiveAlpha, AngleHelper.rad(rot));
+        ms.popPose();
+
     }
 
     void render(BeamHelper.BeamProperties beamProperties, ItemRenderer renderer, ItemStack itemStack,
@@ -296,16 +275,9 @@ public class HologramSourceRenderer extends SafeBlockEntityRenderer<HologramSour
         if (!itemStack.isEmpty()) {
             ms.pushPose();
 
-            boolean flag = itemDisplayContext == ItemDisplayContext.GUI
-                    || itemDisplayContext == ItemDisplayContext.GROUND
-                    || itemDisplayContext == ItemDisplayContext.FIXED;
-
-            if (flag) {
-                if (itemStack.is(Items.TRIDENT)) {
-                    bakedModel = renderer.getItemModelShaper().getModelManager().getModel(TRIDENT_MODEL);
-                } else if (itemStack.is(Items.SPYGLASS)) {
-                    bakedModel = renderer.getItemModelShaper().getModelManager().getModel(SPYGLASS_MODEL);
-                }
+            if (CUSTOM_ITEM_MODEL.containsKey(itemStack.getItem())) {
+                bakedModel = renderer.getItemModelShaper().getModelManager()
+                        .getModel(CUSTOM_ITEM_MODEL.get(itemStack.getItem()));
             }
 
             bakedModel = ClientHooks.handleCameraTransforms(ms, bakedModel, itemDisplayContext, p_115146_);
@@ -313,57 +285,65 @@ public class HologramSourceRenderer extends SafeBlockEntityRenderer<HologramSour
 
             TransformStack.of(ms)
                     .rotateCentered((float) rotation, Direction.UP);
-            if (!bakedModel.isCustomRenderer() && (!itemStack.is(Items.TRIDENT) || flag)) {
-                boolean flag1;
-                if (itemDisplayContext != ItemDisplayContext.GUI && !itemDisplayContext.firstPerson()
-                        && itemStack.getItem() instanceof BlockItem) {
-                    Block block = ((BlockItem) itemStack.getItem()).getBlock();
-                    flag1 = !(block instanceof HalfTransparentBlock) && !(block instanceof StainedGlassPaneBlock);
-                } else {
-                    flag1 = true;
-                }
-                for (var model : bakedModel.getRenderPasses(itemStack, flag1)) {
-
-                    this.renderModelLists(beamProperties, renderer, model, itemStack, light, overlay, ms,
-                            vertexConsumer, alpha);
-
-                }
+            boolean flag1;
+            if (itemDisplayContext != ItemDisplayContext.GUI && !itemDisplayContext.firstPerson()
+                    && itemStack.getItem() instanceof BlockItem) {
+                Block block = ((BlockItem) itemStack.getItem()).getBlock();
+                flag1 = !(block instanceof HalfTransparentBlock) && !(block instanceof StainedGlassPaneBlock);
             } else {
-                IClientItemExtensions.of(itemStack).getCustomRenderer().renderByItem(itemStack, itemDisplayContext, ms,
-                        buffer, light, overlay);
+                flag1 = true;
             }
 
+            for (BakedModel model : bakedModel.getRenderPasses(itemStack, flag1)) {
+
+                this.renderModelLists(
+                        beamProperties,
+                        renderer,
+                        model,
+                        itemStack,
+                        light,
+                        overlay,
+                        ms,
+                        vertexConsumer,
+                        alpha);
+            }
             ms.popPose();
         }
     }
 
-    void renderModelLists(BeamHelper.BeamProperties beamProperties, ItemRenderer renderer, BakedModel p_115190_,
-            ItemStack p_115191_, int p_115192_, int p_115193_, PoseStack p_115194_, VertexConsumer p_115195_,
+    void renderModelLists(BeamHelper.BeamProperties beamProperties, ItemRenderer renderer, BakedModel model,
+            ItemStack stack, int light, int overlay, PoseStack pose, VertexConsumer vc,
             float alpha) {
         RandomSource randomsource = RandomSource.create();
 
+        float r = randomsource.nextFloat();
         for (Direction direction : Direction.values()) {
             randomsource.setSeed(42L);
-            this.renderQuadList(beamProperties, p_115194_, p_115195_,
-                    p_115190_.getQuads((BlockState) null, direction, randomsource), p_115191_, p_115192_, p_115193_,
-                    alpha);
+            this.renderQuadList(beamProperties, pose, vc,
+                    model.getQuads((BlockState) null, direction, randomsource), stack, light, overlay,
+                    alpha, r);
         }
 
         randomsource.setSeed(42L);
-        this.renderQuadList(beamProperties, p_115194_, p_115195_,
-                p_115190_.getQuads((BlockState) null, (Direction) null, randomsource), p_115191_, p_115192_, p_115193_,
-                alpha);
+        this.renderQuadList(beamProperties, pose, vc,
+                model.getQuads((BlockState) null, (Direction) null, randomsource), stack, light, overlay,
+                alpha, r);
     }
 
-    void renderQuadList(BeamHelper.BeamProperties beamProperties, PoseStack p_115163_, VertexConsumer p_115164_,
-            List<BakedQuad> p_115165_, ItemStack p_115166_, int p_115167_, int p_115168_, float alpha) {
-        PoseStack.Pose posestack$pose = p_115163_.last();
+    void renderQuadList(BeamHelper.BeamProperties beamProperties, PoseStack pose, VertexConsumer vc,
+            List<BakedQuad> quads, ItemStack stack, int light, int overlay, float alpha,
+            float randFloat) {
+        PoseStack.Pose posestack$pose = pose.last();
         Vec3i color = beamProperties.color(), colorvar = COUtils.meanPoint(color, COUtils.getColor(DyeColor.WHITE));
         color = COUtils.colorVec(
-                Color.mixColors(COUtils.colorInt(color), COUtils.colorInt(colorvar), new Random().nextFloat() / 5));
-        for (BakedQuad bakedquad : p_115165_) {
-            p_115164_.putBulkData(posestack$pose, bakedquad, (float) (color.getX() / 255D),
-                    (float) (color.getY() / 255D), (float) (color.getZ() / 255D), alpha, p_115167_, p_115168_, true);
+                Color.mixColors(COUtils.colorInt(color), COUtils.colorInt(colorvar),
+                        randFloat / 5));
+        float d = 1.5f;
+        d = 1f;
+        for (BakedQuad bakedquad : quads) {
+            vc.putBulkData(posestack$pose, bakedquad, (float) (color.getX() * d / 255D),
+                    (float) (color.getY() * d / 255D), (float) (color.getZ() * d / 255D), alpha, light, overlay,
+                    false);
         }
 
     }

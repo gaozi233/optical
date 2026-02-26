@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.compat.jei.category.CreateRecipeCategory;
 import com.simibubi.create.compat.jei.category.sequencedAssembly.SequencedAssemblySubCategory;
 import com.simibubi.create.content.processing.sequenced.SequencedRecipe;
+
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.recipe.IFocusGroup;
@@ -15,14 +16,13 @@ public class FocusingAssemblySubcategory extends SequencedAssemblySubCategory {
 
     private final AnimatedFocus focus = new AnimatedFocus(false);
 
-
     public FocusingAssemblySubcategory() {
         super(20);
     }
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, SequencedRecipe<?> recipe, IFocusGroup focuses, int x) {
-        if(recipe.getRecipe().getIngredients().size() > 1) {
+        if (recipe.getRecipe().getIngredients().size() > 1) {
             IRecipeSlotBuilder slot = builder
                     .addSlot(RecipeIngredientRole.CATALYST, x + 4, 15)
                     .setBackground(CreateRecipeCategory.getRenderedSlot(), -1, -1)
@@ -30,7 +30,6 @@ public class FocusingAssemblySubcategory extends SequencedAssemblySubCategory {
         }
 
     }
-
 
     @Override
     public void draw(SequencedRecipe<?> recipe, GuiGraphics graphics, double mouseX, double mouseY, int index) {

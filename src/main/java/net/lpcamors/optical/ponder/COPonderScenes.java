@@ -2,6 +2,9 @@ package net.lpcamors.optical.ponder;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.function.Consumer;
+
+import javax.annotation.Nullable;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
@@ -19,11 +22,14 @@ import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
 import net.createmod.ponder.api.scene.SceneBuilder;
 import net.createmod.ponder.api.scene.SceneBuildingUtil;
 import net.createmod.ponder.api.scene.Selection;
+import net.lpcamors.optical.COUtils;
 import net.lpcamors.optical.blocks.COBlocks;
 import net.lpcamors.optical.blocks.beam_focuser.BeamFocuserBlockEntity;
 import net.lpcamors.optical.blocks.hologram_source.HologramSourceBlockEntity;
+import net.lpcamors.optical.blocks.hologram_source.HologramSourceBlockEntity.Mode;
 import net.lpcamors.optical.blocks.optical_receptor.OpticalReceptorBlockEntity;
 import net.lpcamors.optical.blocks.optical_sensor.OpticalSensorBlock;
+import net.lpcamors.optical.blocks.optical_source.BeamHelper;
 import net.lpcamors.optical.blocks.optical_source.BeamHelper.BeamProperties;
 import net.lpcamors.optical.blocks.optical_source.GenericOpticalSourceBlockEntity;
 import net.lpcamors.optical.blocks.optical_source.GenericOpticalSourceBlockEntity.BeamSection;
@@ -31,7 +37,10 @@ import net.lpcamors.optical.blocks.thermal_optical_source.ThermalOpticalSourceBl
 import net.lpcamors.optical.items.COItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluids;
@@ -47,26 +56,48 @@ public class COPonderScenes {
 
         HELPER.forComponents(COBlocks.OPTICAL_SOURCE, COBlocks.LIGHT_OPTICAL_RECEPTOR, COBlocks.HEAVY_OPTICAL_RECEPTOR)
                 .addStoryBoard("opticals/base", COPonderScenes::base, COPonderTags.OPTICALS);
+
         HELPER.forComponents(COBlocks.LIGHT_OPTICAL_RECEPTOR, COBlocks.HEAVY_OPTICAL_RECEPTOR)
                 .addStoryBoard("opticals/receptors", COPonderScenes::receptors, COPonderTags.OPTICALS);
+
         HELPER.forComponents(COBlocks.OPTICAL_SOURCE).addStoryBoard("opticals/beam_types", COPonderScenes::beamTypes);
+
         HELPER.forComponents(COBlocks.ENCASED_MIRROR, COBlocks.OPTICAL_SOURCE).addStoryBoard("opticals/mirror",
                 COPonderScenes::mirror, COPonderTags.OPTICALS);
+
         HELPER.forComponents(COBlocks.ABSORPTION_POLARIZING_FILTER, COBlocks.OPTICAL_SOURCE)
                 .addStoryBoard("opticals/polarizing_filter", COPonderScenes::polarizingFilter, COPonderTags.OPTICALS);
+
         HELPER.forComponents(COBlocks.POLARIZING_BEAM_SPLITTER_BLOCK, COBlocks.OPTICAL_SOURCE)
                 .addStoryBoard("opticals/polarizing_cube", COPonderScenes::polarizingCube, COPonderTags.OPTICALS);
+
         HELPER.forComponents(COBlocks.OPTICAL_SENSOR, COBlocks.OPTICAL_SOURCE).addStoryBoard("opticals/sensor",
                 COPonderScenes::sensor, COPonderTags.OPTICALS);
+
         HELPER.forComponents(COBlocks.OPTICAL_SOURCE, COBlocks.BEAM_CONDENSER, COBlocks.LIGHT_OPTICAL_RECEPTOR,
                 COBlocks.HEAVY_OPTICAL_RECEPTOR)
                 .addStoryBoard("opticals/condenser", COPonderScenes::condenser, COPonderTags.OPTICALS);
+
         HELPER.forComponents(COBlocks.OPTICAL_SOURCE, COBlocks.BEAM_FOCUSER).addStoryBoard("opticals/focuser",
                 COPonderScenes::focuser, COPonderTags.OPTICALS);
-        HELPER.forComponents(COBlocks.OPTICAL_SENSOR, COBlocks.HOLOGRAM_SOURCE)
-                .addStoryBoard("opticals/hologram_source", COPonderScenes::hologram, COPonderTags.OPTICALS);
+
+        HELPER.forComponents(COBlocks.HOLOGRAM_SOURCE)
+                .addStoryBoard("opticals/hologram_source", COPonderScenes::hologramItem, COPonderTags.OPTICALS);
+
+        HELPER.forComponents(COBlocks.HOLOGRAM_SOURCE)
+                .addStoryBoard("opticals/hologram_display", COPonderScenes::hologramMessagesItem,
+                        COPonderTags.OPTICALS);
+
         HELPER.forComponents(COBlocks.OPTICAL_SOURCE, COBlocks.THERMAL_OPTICAL_SOURCE)
                 .addStoryBoard("opticals/thermal_source", COPonderScenes::thermalSource, COPonderTags.OPTICALS);
+
+        HELPER.forComponents(COBlocks.BEAM_READER, COBlocks.BEAM_MODULATOR)
+                .addStoryBoard("opticals/beam_reader", COPonderScenes::reader,
+                        COPonderTags.OPTICALS);
+
+        HELPER.forComponents(COBlocks.BEAM_READER, COBlocks.BEAM_MODULATOR)
+                .addStoryBoard("opticals/modulator", COPonderScenes::modulator,
+                        COPonderTags.OPTICALS);
 
     }
 
@@ -262,7 +293,6 @@ public class COPonderScenes {
         addSourceSection(scene, util, source, mirror, upReceptor, Direction.NORTH);
         scene.idle(10);
 
-
         scene.world().setKineticSpeed(upReceptorSelect, 64);
         scene.effects().indicateSuccess(upReceptor);
 
@@ -301,7 +331,6 @@ public class COPonderScenes {
         scene.idle(20);
         scene.effects().indicateSuccess(source);
 
-
         scene.overlay().showText(60)
                 .independent(0).colored(PonderPalette.BLUE)
                 .text("Propagated beams have certain properties. One of them, is the polarization.");
@@ -331,7 +360,6 @@ public class COPonderScenes {
         scene.world().showSection(filterSelection1, Direction.DOWN);
         scene.idle(5);
         scene.world().setKineticSpeed(receptorSystemSelect, 0);
-
 
         scene.effects().rotationSpeedIndicator(receptor);
         scene.idle(20);
@@ -664,37 +692,38 @@ public class COPonderScenes {
                 "Beam Type and speed direction is the same of the higher beam,",
                 "Visibility depends if there's at least one visible beam composing it,",
                 "Polarization follow the composing system." };
-        scene.overlay().showText(240)
+        scene.overlay().showText(300)
                 .attachKeyFrame()
                 .independent(20)
                 .placeNearTarget()
                 .text("The resultant beam acts exactly like a normal beam. But its properties follow these criteria:");
-        scene.idle(10);
         int y = 62;
+        int time = 275;
         for (String s : actions) {
-            scene.idle(40);
-            scene.overlay().showText(100)
+            scene.idle(25);
+            scene.overlay().showText(time)
                     .colored(PonderPalette.MEDIUM)
                     .placeNearTarget()
                     .independent(y)
                     .text(s);
             y += 32;
+            time -= 25;
         }
-        scene.idle(80);
-        scene.idle(10);
-        scene.overlay().showText(80)
+        scene.idle(200);
+        scene.idle(50);
+        scene.overlay().showText(140)
                 .colored(PonderPalette.GREEN)
+                .attachKeyFrame()
                 .placeNearTarget()
                 .independent(20)
                 .text("Composing system means that the components can compose a different result than itself. Combining different polarizations create a beam with random polarization. ");
-        scene.idle(60);
-        scene.overlay().showText(60)
+        scene.idle(40);
+        scene.overlay().showText(100)
                 .colored(PonderPalette.BLUE)
                 .placeNearTarget()
                 .independent(92)
                 .text("The color of the beam is the sum of the color of the visible beams.");
-        scene.idle(60);
-        scene.idle(10);
+        scene.idle(120);
 
         scene.overlay().showText(60)
                 .attachKeyFrame()
@@ -771,9 +800,9 @@ public class COPonderScenes {
                 new ItemStack(Items.GLASS_PANE));
         scene.idle(30);
         scene.world().stallBeltItem(item, true);
-        scene.world().modifyBlockEntity(focuser, BeamFocuserBlockEntity.class, pte -> pte.processingTicks = 40);
+        activateFocuser(scene, util, focuser, true);
         scene.idle(35);
-        scene.world().modifyBlockEntity(focuser, BeamFocuserBlockEntity.class, pte -> pte.processingTicks = -1);
+        activateFocuser(scene, util, focuser, false);
         scene.world().removeItemsFromBelt(focuser.below(2));
         scene.world().createItemOnBeltLike(focuser.below(2), Direction.UP, new ItemStack(COItems.MIRROR.get()));
         scene.idle(60);
@@ -789,16 +818,16 @@ public class COPonderScenes {
         item = scene.world().createItemOnBelt(beltStart, Direction.NORTH, new ItemStack(Items.WHITE_WOOL));
         scene.idle(30);
         scene.world().stallBeltItem(item, true);
-        scene.world().modifyBlockEntity(focuser, BeamFocuserBlockEntity.class, pte -> pte.processingTicks = 40);
+        activateFocuser(scene, util, focuser, true);
         scene.idle(35);
-        scene.world().modifyBlockEntity(focuser, BeamFocuserBlockEntity.class, pte -> pte.processingTicks = -1);
+        activateFocuser(scene, util, focuser, false);
         scene.world().removeItemsFromBelt(focuser.below(2));
         scene.world().createItemOnBeltLike(focuser.below(2), Direction.UP, new ItemStack(Items.BLUE_WOOL));
         scene.idle(60);
 
     }
 
-    public static void hologram(SceneBuilder builder, SceneBuildingUtil util) {
+    public static void hologramItem(SceneBuilder builder, SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
         scene.title("opticals.hologram_source", "Cool displays");
         scene.configureBasePlate(0, 0, 5);
@@ -808,8 +837,7 @@ public class COPonderScenes {
         BlockPos hologramSource2 = util.grid().at(1, 1, 2);
         BlockPos glass = util.grid().at(2, 1, 2);
         Selection holograms = util.select().fromTo(0, 1, 2, 3, 1, 2);
-        Selection sourceSystemSelect = util.select().fromTo(4, 1, 2, 5, 1, 2)
-                .add(util.select().fromTo(2, 1, 4, 2, 1, 5));
+        Selection sourceSystemSelect = util.select().fromTo(4, 1, 2, 5, 1, 2);
         Selection bigWheelSelect = util.select().position(5, 0, 1).add(util.select().position(3, 0, 5));
 
         scene.world().showSection(util.select().layer(0), Direction.UP);
@@ -823,12 +851,15 @@ public class COPonderScenes {
         scene.idle(10);
         changeSpeed(scene, sourceSystemSelect, bigWheelSelect, 64);
         scene.effects().indicateSuccess(source);
+        addSourceSection(scene, util, source, hologramSource1, glass, Direction.EAST);
+        addSourceSection(scene, util, source, glass, hologramSource2, Direction.EAST,
+                b -> b.color(COUtils.getColor(DyeColor.BLUE)));
         scene.idle(20);
 
-        scene.overlay().showText(40)
+        scene.overlay().showText(60)
                 .attachKeyFrame()
                 .text("These hologram sources require visible light to work properly")
-                .pointAt(util.vector().blockSurface(source, Direction.UP));
+                .pointAt(util.vector().blockSurface(hologramSource2, Direction.UP));
 
         Vec3 blockSurface1 = util.vector().blockSurface(hologramSource1, Direction.DOWN)
                 .add(0, 0, 0);
@@ -838,36 +869,25 @@ public class COPonderScenes {
         scene.overlay().showControls(blockSurface1, Pointing.UP, 30).rightClick()
                 .withItem(new ItemStack(Items.NETHERITE_AXE));
         scene.idle(10);
+        hologramActivation(scene, util, hologramSource1, BeamHelper.BeamProperties.BASE);
+        setHologramItem(scene, util, hologramSource1, Items.NETHERITE_AXE, Mode.ROTATING_CLOCKWISE, 0);
+        scene.idle(20);
         scene.overlay().showControls(blockSurface2, Pointing.UP, 30).rightClick()
                 .withItem(new ItemStack(Items.GRASS_BLOCK));
         scene.idle(10);
+        hologramActivation(scene, util, hologramSource2,
+                new BeamHelper.BeamProperties.Builder(BeamProperties.BASE).color(COUtils.getColor(DyeColor.BLUE))
+                        .build());
+        setHologramItem(scene, util, hologramSource2, Items.GRASS_BLOCK, Mode.ROTATING_CLOCKWISE, 0);
 
-        scene.world().modifyBlockEntityNBT(util.select().position(hologramSource1), HologramSourceBlockEntity.class,
-                nbt -> {
-                    HologramSourceBlockEntity.HologramSourceProfile profile = new HologramSourceBlockEntity.HologramSourceProfile();
-                    // profile.stack = new ItemStack(Items.NETHERITE_AXE);
-                    profile.displayMode = HologramSourceBlockEntity.Mode.SPECIFIC_ANGLE;
-                    profile.fixedAngle = 0;
-                    // profile.write(nbt, scene.world().getHolderLookupProvider());
-                });
-        scene.idle(10);
-
-        scene.world().modifyBlockEntityNBT(util.select().position(hologramSource2), HologramSourceBlockEntity.class,
-                nbt -> {
-                    HologramSourceBlockEntity.HologramSourceProfile profile = new HologramSourceBlockEntity.HologramSourceProfile();
-                    // profile.stack = new ItemStack(Items.GRASS_BLOCK);
-                    profile.displayMode = HologramSourceBlockEntity.Mode.SPECIFIC_ANGLE;
-                    profile.fixedAngle = 0;
-                    // profile.write(nbt, scene.world().getHolderLookupProvider());
-                });
+        scene.idle(20);
 
         scene.idle(10);
 
         scene.overlay().showText(60)
                 .text("Right clicking with an item displays it as a hologram")
                 .pointAt(util.vector().blockSurface(hologramSource2, Direction.DOWN));
-        scene.idle(70);
-        scene.idle(10);
+        scene.idle(80);
 
         scene.overlay().showText(60)
                 .text("You can color the hologram by coloring the incident beam.")
@@ -882,34 +902,126 @@ public class COPonderScenes {
                 .attachKeyFrame()
                 .text("You can access the panel by right clicking it with no items in hand. There you can control the rotation of the hologram.")
                 .pointAt(util.vector().blockSurface(hologramSource2, Direction.UP));
-        scene.world().modifyBlockEntityNBT(util.select().position(hologramSource1), HologramSourceBlockEntity.class,
-                nbt -> {
-                    HologramSourceBlockEntity.HologramSourceProfile profile = new HologramSourceBlockEntity.HologramSourceProfile();
-                    // profile.stack = new ItemStack(Items.NETHERITE_AXE);
-                    profile.displayMode = HologramSourceBlockEntity.Mode.SPECIFIC_ANGLE;
-                    profile.fixedAngle = 45;
-                    // profile.write(nbt, scene.world().getHolderLookupProvider());
-                });
+
+        setHologramItem(scene, util, hologramSource1, Items.NETHERITE_AXE, Mode.SPECIFIC_ANGLE, 45);
         scene.idle(10);
 
-        scene.world().modifyBlockEntityNBT(util.select().position(hologramSource2), HologramSourceBlockEntity.class,
-                nbt -> {
-                    HologramSourceBlockEntity.HologramSourceProfile profile = new HologramSourceBlockEntity.HologramSourceProfile();
-                    // profile.stack = new ItemStack(Items.GRASS_BLOCK);
-                    profile.displayMode = HologramSourceBlockEntity.Mode.SPECIFIC_ANGLE;
-                    profile.fixedAngle = 45;
-                    // profile.write(nbt, scene.world().getHolderLookupProvider());
-                });
-
+        setHologramItem(scene, util, hologramSource2, Items.GRASS_BLOCK, Mode.SPECIFIC_ANGLE, 45);
         scene.idle(90);
 
-        scene.overlay().showText(40)
+        scene.overlay().showControls(blockSurface1, Pointing.UP, 30).whileSneaking().rightClick();
+        scene.idle(10);
+        scene.overlay().showControls(blockSurface2, Pointing.UP, 30).whileSneaking().rightClick();
+        scene.idle(10);
+
+        setHologramItem(scene, util, hologramSource1, ItemStack.EMPTY, Mode.ROTATING_CLOCKWISE, 0);
+        scene.idle(10);
+        setHologramItem(scene, util, hologramSource2, ItemStack.EMPTY, Mode.ROTATING_CLOCKWISE, 0);
+        scene.idle(10);
+
+        scene.overlay().showText(60).attachKeyFrame()
+                .text("You can remove the item by shift + right click with empty hand")
+                .colored(PonderPalette.BLUE);
+        scene.idle(80);
+
+        scene.overlay().showText(60).attachKeyFrame()
+                .text("Due to some limitations of the component, some items cannot be displayed correctly")
+                .colored(PonderPalette.BLUE).pointAt(hologramSource2.getCenter());
+
+        scene.overlay().showControls(blockSurface1, Pointing.UP, 30).withItem(new ItemStack(Items.SHIELD));
+        scene.idle(10);
+        scene.overlay().showControls(blockSurface2, Pointing.UP, 30).withItem(new ItemStack(Items.CONDUIT));
+        scene.idle(10);
+
+        setHologramItem(scene, util, hologramSource1, Items.SHIELD, Mode.SPECIFIC_ANGLE, 45);
+        scene.idle(10);
+
+        setHologramItem(scene, util, hologramSource2, Items.CONDUIT, Mode.SPECIFIC_ANGLE, 45);
+
+        scene.idle(80);
+        scene.overlay().showText(80)
                 .attachKeyFrame()
                 .text("Hologram sources can be combined in a connection to make the hologram bigger!")
                 .colored(PonderPalette.BLUE);
-        scene.idle(50);
+        scene.idle(10);
+        scene.world().showSection(util.select().position(3, 1, 4), Direction.DOWN);
+        scene.idle(10);
+        scene.world().showSection(util.select().position(2, 1, 4), Direction.DOWN);
+        scene.idle(10);
+        ;
+        scene.world().showSection(util.select().position(2, 1, 0), Direction.DOWN);
+        scene.idle(10);
+        scene.world().showSection(util.select().position(1, 1, 0), Direction.DOWN);
+        scene.idle(10);
+        scene.world().showSection(util.select().position(0, 1, 0), Direction.DOWN);
+        scene.idle(30);
 
         scene.idle(10);
+
+    }
+
+    public static void hologramMessagesItem(SceneBuilder builder, SceneBuildingUtil util) {
+        CreateSceneBuilder scene = new CreateSceneBuilder(builder);
+        scene.title("opticals.hologram_display", "Cool messages");
+        scene.configureBasePlate(0, 0, 5);
+
+        BlockPos source = util.grid().at(4, 1, 2);
+        BlockPos hologramSource1 = util.grid().at(2, 1, 2);
+        BlockPos glass = util.grid().at(0, 1, 2);
+        BlockPos linkPos = util.grid().at(1, 1, 4);
+        BlockPos depot = util.grid().at(2, 1, 4);
+        Selection sourceSystemSelect = util.select().fromTo(4, 1, 2, 5, 1, 2);
+        Selection bigWheelSelect = util.select().position(5, 0, 1).add(util.select().position(3, 0, 5));
+        Selection link = util.select().position(linkPos);
+
+        scene.world().showSection(util.select().layer(0), Direction.UP);
+        scene.idle(5);
+        scene.world().showSection(sourceSystemSelect, Direction.DOWN);
+        scene.idle(5);
+        scene.world().showSection(util.select().position(hologramSource1), Direction.DOWN);
+        scene.idle(5);
+        scene.world().showSection(util.select().position(glass), Direction.DOWN);
+        scene.idle(5);
+
+        changeSpeed(scene, sourceSystemSelect, bigWheelSelect, 0);
+        scene.idle(10);
+        changeSpeed(scene, sourceSystemSelect, bigWheelSelect, 64);
+        scene.effects().indicateSuccess(source);
+        addSourceSection(scene, util, source, source, hologramSource1, Direction.EAST);
+        addSourceSection(scene, util, source, hologramSource1, glass, Direction.EAST);
+        scene.idle(40);
+
+        scene.overlay().showText(60)
+                .attachKeyFrame()
+                .text("You can use Hologram Displays to also display messages...")
+                .pointAt(util.vector().blockSurface(hologramSource1, Direction.DOWN));
+        scene.idle(10);
+        scene.overlay().showControls(hologramSource1.getCenter(), Pointing.UP, 60).rightClick()
+                .withItem(AllBlocks.DISPLAY_LINK.asStack());
+        scene.overlay().chaseBoundingBoxOutline(PonderPalette.OUTPUT, link, new AABB(hologramSource1), 60);
+        scene.idle(40);
+        scene.world().showSection(util.select().position(depot), Direction.DOWN);
+        scene.idle(10);
+        scene.world().showSection(link, Direction.DOWN);
+        scene.idle(10);
+        ItemStack stack = COItems.MIRROR.asStack();
+        scene.world().createItemOnBeltLike(depot, Direction.SOUTH, stack);
+        scene.idle(20);
+        scene.world().flashDisplayLink(linkPos);
+        hologramActivation(scene, util, hologramSource1, BeamProperties.BASE);
+        setHologramMessage(scene, util, hologramSource1, stack.getHoverName().getString(), Mode.ROTATING_CLOCKWISE, 0);
+        scene.idle(80);
+
+        scene.overlay().showText(60)
+                .attachKeyFrame()
+                .text("You can configure the display mode of hologram")
+                .pointAt(util.vector().blockSurface(hologramSource1, Direction.DOWN));
+        scene.idle(20);
+        scene.overlay().showControls(hologramSource1.getCenter(), Pointing.UP, 60).rightClick();
+        scene.idle(10);
+        setHologramMessage(scene, util, hologramSource1, stack.getHoverName().getString(), Mode.SPECIFIC_ANGLE, 0);
+
+        scene.idle(40);
 
     }
 
@@ -1031,6 +1143,158 @@ public class COPonderScenes {
 
     }
 
+    public static void reader(SceneBuilder builder, SceneBuildingUtil util) {
+        CreateSceneBuilder scene = new CreateSceneBuilder(builder);
+        scene.title("opticals.reader", "Reading beam properties");
+        scene.configureBasePlate(0, 0, 5);
+
+        BlockPos source = util.grid().at(4, 1, 2);
+        BlockPos reader = util.grid().at(2, 1, 2);
+        BlockPos dLink = util.grid().at(2, 1, 3);
+        BlockPos glass = util.grid().at(0, 1, 2);
+        Selection sourceSystemSelect = util.select().fromTo(4, 1, 2, 5, 1, 2);
+        Selection bigWheelSelect = util.select().position(5, 0, 1).add(util.select().position(3, 0, 5));
+
+        Selection tubesSelection = util.select().fromTo(4, 1, 4, 4, 1, 4);
+
+        scene.world().showSection(util.select().layer(0), Direction.UP);
+        scene.idle(5);
+        scene.world().showSection(sourceSystemSelect, Direction.DOWN);
+        scene.idle(5);
+        scene.world().showSection(util.select().position(reader), Direction.DOWN);
+        scene.idle(5);
+        scene.world().showSection(util.select().position(glass), Direction.DOWN);
+        scene.idle(20);
+
+        changeSpeed(scene, sourceSystemSelect, bigWheelSelect, 0);
+        scene.idle(10);
+        changeSpeed(scene, sourceSystemSelect, bigWheelSelect, 64);
+        scene.effects().indicateSuccess(source);
+        addSourceSection(scene, util, source, source, reader, Direction.EAST);
+        addSourceSection(scene, util, source, reader, glass, Direction.EAST);
+        scene.idle(20);
+
+        scene.overlay().showControls(reader.getCenter(), Pointing.DOWN, 60).withItem(AllItems.GOGGLES.asStack());
+        scene.idle(10);
+        scene.overlay().showText(60)
+                .attachKeyFrame()
+                .placeNearTarget()
+                .text("Using goggles you can analyze the properties of the incident beam")
+                .pointAt(util.vector().blockSurface(reader, Direction.DOWN));
+        scene.idle(80);
+        scene.idle(5);
+        scene.world().showSection(util.select().position(dLink), Direction.NORTH);
+        scene.idle(5);
+        scene.world().showSection(tubesSelection, Direction.DOWN);
+        scene.idle(5);
+
+        scene.overlay().showText(60)
+                .attachKeyFrame()
+                .text("You can display the properties using a display link")
+                .pointAt(util.vector().blockSurface(dLink, Direction.DOWN));
+
+        scene.idle(5);
+        scene.world().modifyBlockEntityNBT(tubesSelection, NixieTubeBlockEntity.class,
+                nbt -> {
+                    nbt.putString("RawCustomText", "16iu");
+                    nbt.putString("CustomText", "16iu");
+                });
+        scene.effects().indicateRedstone(util.grid().at(4, 1, 4));
+        scene.effects().indicateRedstone(util.grid().at(3, 1, 4));
+        scene.idle(75);
+
+    }
+
+    public static void modulator(SceneBuilder builder, SceneBuildingUtil util) {
+        CreateSceneBuilder scene = new CreateSceneBuilder(builder);
+        scene.title("opticals.modulator", "Communicating by light");
+        scene.configureBasePlate(0, 0, 5);
+
+        BlockPos source = util.grid().at(4, 1, 0);
+        BlockPos modulator = util.grid().at(3, 1, 0);
+        BlockPos reader = util.grid().at(1, 1, 0);
+        BlockPos dLink = util.grid().at(1, 1, 1);
+        BlockPos glass = util.grid().at(0, 1, 0);
+        Selection sourceSystemSelect = util.select().fromTo(4, 1, 0, 5, 1, 0);
+        Selection bigWheelSelect = util.select().position(5, 0, 1);
+
+        BlockPos boardPos = util.grid().at(2, 2, 4);
+        Selection board = util.select().fromTo(0, 1, 4, 2, 2, 4);
+        Selection boardWheel = util.select().fromTo(3, 1, 4, 3, 1, 5);
+
+        scene.world().showSection(util.select().layer(0), Direction.UP);
+        scene.idle(5);
+        scene.world().showSection(sourceSystemSelect, Direction.DOWN);
+        scene.idle(5);
+        scene.world().showSection(util.select().position(modulator), Direction.DOWN);
+        scene.idle(5);
+        scene.world().showSection(util.select().position(glass), Direction.DOWN);
+        scene.idle(20);
+
+        changeSpeed(scene, sourceSystemSelect, bigWheelSelect, 0);
+        scene.idle(10);
+        changeSpeed(scene, sourceSystemSelect, bigWheelSelect, 64);
+        scene.effects().indicateSuccess(source);
+        addSourceSection(scene, util, source, source, modulator, Direction.EAST);
+        addSourceSection(scene, util, source, modulator, reader, Direction.EAST);
+        addSourceSection(scene, util, source, reader, glass, Direction.EAST);
+        scene.idle(10);
+        changeSpeed(scene, boardWheel, bigWheelSelect, 64);
+        scene.idle(40);
+
+        scene.overlay().showText(60)
+                .attachKeyFrame()
+                .placeNearTarget()
+                .text("Using the modulator, you can communicate from one point to another...")
+                .pointAt(util.vector().blockSurface(modulator, Direction.DOWN));
+        scene.idle(80);
+        scene.overlay().showControls(modulator.getCenter(), Pointing.DOWN, 60).withItem(AllBlocks.CLIPBOARD.asStack());
+        scene.idle(10);
+
+        scene.overlay().showText(60)
+                .placeNearTarget()
+                .text("Just write some text on a clipboard and apply it to the component")
+                .pointAt(util.vector().blockSurface(modulator, Direction.DOWN));
+        scene.idle(80);
+        scene.idle(5);
+        scene.world().showSection(util.select().position(reader), Direction.DOWN);
+        scene.idle(5);
+        scene.world().showSection(util.select().position(dLink), Direction.NORTH);
+        scene.idle(5);
+        scene.world().showSection(board, Direction.DOWN);
+        scene.idle(5);
+        scene.world().showSection(boardWheel, Direction.DOWN);
+        scene.idle(5);
+        changeSpeed(scene, boardWheel, board, 64);
+        scene.idle(10);
+
+        scene.overlay().showText(60)
+                .attachKeyFrame()
+                .text("To receive the signal you'll need a beam reader and a display...")
+                .pointAt(util.vector().blockSurface(dLink, Direction.DOWN));
+
+        scene.idle(80);
+        scene.overlay().showText(60)
+                .attachKeyFrame()
+                .independent()
+                .colored(PonderPalette.GREEN)
+                .text("But this requires both components to be in tune");
+        scene.overlay().showControls(modulator.getCenter(), Pointing.DOWN, 60).rightClick();
+        scene.idle(10);
+        scene.overlay().showControls(reader.getCenter(), Pointing.DOWN, 60).rightClick()
+                .withItem(AllItems.WRENCH.asStack());
+
+        scene.idle(10);
+        scene.world().flashDisplayLink(dLink);
+
+        scene.world().setDisplayBoardText(boardPos, 0, Component.literal("Create"));
+        scene.world().setDisplayBoardText(boardPos, 1, Component.literal("Optical :)"));
+        scene.world().setDisplayBoardText(boardPos, 3, Component.literal(" - lpcamors"));
+
+        scene.idle(60);
+
+    }
+
     public static void changeSpeed(CreateSceneBuilder scene, Selection laser, Selection bigWheel, int speed) {
         scene.world().setKineticSpeed(laser, speed);
         scene.world().setKineticSpeed(bigWheel, (int) (speed * (-0.5)));
@@ -1063,10 +1327,18 @@ public class COPonderScenes {
     public static void addSourceSection(CreateSceneBuilder scene, SceneBuildingUtil util, BlockPos source,
             BlockPos fromPos, BlockPos toPos,
             Direction dir) {
+        addSourceSection(scene, util, source, fromPos, toPos, dir, a -> {
+        });
+    }
+
+    public static void addSourceSection(CreateSceneBuilder scene, SceneBuildingUtil util, BlockPos source,
+            BlockPos fromPos, BlockPos toPos,
+            Direction dir, Consumer<BeamProperties.Builder> consumer) {
 
         scene.world().modifyBlockEntity(source, GenericOpticalSourceBlockEntity.class, be -> {
-            BeamProperties prop = new BeamProperties.Builder(be.getInitialBeamProperties()).direction(dir).build();
-            be.sections.add(new BeamSection(fromPos, toPos, prop));
+            BeamProperties.Builder prop = new BeamProperties.Builder(be.getInitialBeamProperties()).direction(dir);
+            consumer.accept(prop);
+            be.sections.add(new BeamSection(fromPos, toPos, prop.build()));
             be.sendData();
         });
     }
@@ -1085,5 +1357,66 @@ public class COPonderScenes {
             be.sections.remove(be.sections.size() - 1);
             be.sendData();
         });
+    }
+
+    public static void hologramActivation(CreateSceneBuilder scene, SceneBuildingUtil util, BlockPos pos,
+            @Nullable BeamProperties prop) {
+        scene.world().modifyBlockEntity(pos, HologramSourceBlockEntity.class,
+                be -> {
+                    be.updateChain();
+                    if (prop == null) {
+                        be.removeBeam();
+                    } else {
+                        be.receiveBeam(prop, true);
+                    }
+                    be.sendData();
+                });
+    }
+
+    public static void setHologramItem(CreateSceneBuilder scene, SceneBuildingUtil util, BlockPos pos, Item item,
+            HologramSourceBlockEntity.Mode mode, int angle) {
+        setHologramItem(scene, util, pos, new ItemStack(item), mode, angle);
+    }
+
+    public static void setHologramItem(CreateSceneBuilder scene, SceneBuildingUtil util, BlockPos pos, ItemStack item,
+            HologramSourceBlockEntity.Mode mode, int angle) {
+        scene.world().modifyBlockEntityNBT(util.select().position(pos), HologramSourceBlockEntity.class,
+                nbt -> {
+                    HologramSourceBlockEntity.HologramSourceProfile profile = new HologramSourceBlockEntity.HologramSourceProfile();
+                    profile.stack = item;
+                    profile.displayMode = mode;
+                    profile.fixedAngle = angle;
+                    profile.write(nbt, scene.world().getHolderLookupProvider());
+                });
+    }
+
+    public static void setHologramMessage(CreateSceneBuilder scene, SceneBuildingUtil util, BlockPos pos,
+            String message,
+            HologramSourceBlockEntity.Mode mode, int angle) {
+        scene.world().modifyBlockEntityNBT(util.select().position(pos), HologramSourceBlockEntity.class,
+                nbt -> {
+                    HologramSourceBlockEntity.HologramSourceProfile profile = new HologramSourceBlockEntity.HologramSourceProfile();
+                    profile.addSection(0, message);
+                    profile.displayMode = mode;
+                    profile.fixedAngle = angle;
+                    profile.write(nbt, scene.world().getHolderLookupProvider());
+                });
+    }
+
+    public static void activateFocuser(CreateSceneBuilder scene, SceneBuildingUtil util, BlockPos pos,
+            boolean activate) {
+
+        scene.world().modifyBlockEntity(pos, BeamFocuserBlockEntity.class,
+                be -> {
+                    if (activate) {
+                        be.receiveBeam(BeamProperties.BASE, true);
+                        be.processingTicks = be.getProcessDuration() + 5;
+                    } else {
+
+                        be.removeBeam();
+                        be.processingTicks = 8;
+                    }
+                    be.update();
+                });
     }
 }

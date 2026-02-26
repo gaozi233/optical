@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import net.lpcamors.optical.COUtils;
+import net.lpcamors.optical.blocks.hologram_source.HologramSourceBlock;
 import net.lpcamors.optical.blocks.optical_source.BeamHelper;
 import net.lpcamors.optical.blocks.optical_source.GenericOpticalSourceBlockEntity.IBeamActivator;
 import net.lpcamors.optical.data.COTags;
@@ -146,27 +147,12 @@ public interface IBeamReceiver {
 
         getNearLivingEntity(level, pos, LIVING_ENTITY_EXTENDED_RADIUS, faceIrradiated).ifPresent(
                 livingEntity -> {
-                    /*
-                     * boolean f = level.getBlockEntity(pos) != null &&
-                     * (level.getBlockEntity(pos).getBlockState().getBlock() instanceof
-                     * IBeamReceiver
-                     * ||level.getBlockEntity(pos) instanceof IBeamSource);
-                     * if(f) {
-                     * BlockState state = level.getBlockState(pos);
-                     * if(state.getBlock() instanceof IBeamReceiver || state.isAir()) {
-                     * aabb[0] = new AABB(0.5, 0.5, 0.5, 0.5, 0.5, 0.5);
-                     * } else {
-                     * BlockGetter bg = level.getChunk(pos);
-                     * aabb[0] = state.getShape(bg, pos).bounds();
-                     * }
-                     * return;
-                     * };
-                     * 
-                     */
-                    AABB aabb1 = livingEntity.getBoundingBox();
-                    aabb1 = aabb1.move(-pos.getX(), -pos.getY(), -pos.getZ());
-                    aabb[0] = aabb1;
+                    if (!(livingEntity.getBlockStateOn().getBlock() instanceof HologramSourceBlock)) {
+                        AABB aabb1 = livingEntity.getBoundingBox();
+                        aabb1 = aabb1.move(-pos.getX(), -pos.getY(), -pos.getZ());
+                        aabb[0] = aabb1;
 
+                    }
                 });
 
         BlockState state = level.getBlockState(pos);

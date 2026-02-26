@@ -10,8 +10,6 @@ import net.createmod.catnip.lang.Lang;
 import net.createmod.catnip.math.VecHelper;
 import net.lpcamors.optical.COUtils;
 import net.lpcamors.optical.CreateOptical;
-import net.lpcamors.optical.data.COLang;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -99,34 +97,7 @@ public class OpticalSourceBlockEntity extends GenericOpticalSourceBlockEntity {
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        Lang.builder("tooltip").translate(CreateOptical.ID + ".gui.goggles.beam_properties").forGoggles(tooltip);
-
-        if (Math.abs(this.getSpeed()) > 0) {
-            BeamHelper.BeamType beamType = this.getInitialBeamProperties().getType();
-            Lang.builder("")
-                    .add(COLang.Prefixes.CREATE.translate(("gui.goggles.beam_type")).withStyle(ChatFormatting.GRAY))
-                    .forGoggles(tooltip);
-            Lang.builder("")
-                    .add(COLang.Prefixes.CREATE.translate(beamType.getDescriptionId()).withStyle(ChatFormatting.AQUA))
-                    .forGoggles(tooltip, 1);
-            Lang.builder("").add(
-                    COLang.Prefixes.CREATE.translate(("gui.goggles.propagation_range")).withStyle(ChatFormatting.GRAY))
-                    .forGoggles(tooltip);
-            Lang.builder("")
-                    .add(Component.literal(" " + beamType.getRange() + " blocks").withStyle(ChatFormatting.AQUA))
-                    .forGoggles(tooltip, 1);
-        }
-
-        BeamHelper.BeamPolarization beamPolarization = this.polarization.get();
-
-        Lang.builder("")
-                .add(COLang.Prefixes.CREATE.translate(("gui.goggles.polarization")).withStyle(ChatFormatting.GRAY))
-                .forGoggles(tooltip);
-        Lang.builder("")
-                .add(COLang.Prefixes.CREATE.translate(beamPolarization.getTranslationKey())
-                        .append(" " + beamPolarization.getsIcon()).withStyle(ChatFormatting.AQUA))
-                .forGoggles(tooltip, 1);
-
+        GenericOpticalSourceBlockEntity.goggleTooltip(tooltip, isPlayerSneaking, this);
         return super.addToGoggleTooltip(tooltip, isPlayerSneaking);
 
     }

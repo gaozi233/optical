@@ -77,7 +77,7 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
     public void tick() {
         super.tick();
 
-        if (!this.isVirtual() && (this.speed == 0 || this.optionalBeamProperties.isEmpty())) {
+        if (this.speed == 0 || this.optionalBeamProperties.isEmpty()) {
             processingTicks = -1;
         }
         if (processingTicks >= 0) {
@@ -90,12 +90,6 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
     }
 
     public double getAngle(float partialTicks, double radius, double k, double alpha) {
-        // t is the map of the limits into how many wavelengths(in this case 2)
-        // it's interesting because processingTicks get smaller, but T gets higher to
-        // 2npi
-        // that's all because the therm (5 - PROCESSING_TICK) < 0, then t ~ - c *
-        // processingTicks
-        // that explains why " -(minus) partialTicks"
         int cycles = (int) Math.ceil(Math.abs(this.getSpeed()) / 64D);
         double t = ((cycles + 1) * 2 * Math.PI) * (-partialTicks + this.processingTicks - this.getProcessDuration())
                 / (k * (5 - this.getProcessDuration()));
@@ -117,11 +111,11 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
     }
 
     protected void spawnProcessingParticles() {
-        if (!this.isVirtual() && this.optionalBeamProperties.isPresent()) {
+        if (this.optionalBeamProperties.isPresent()) {
             Vec3 vec = VecHelper.getCenterOf(this.worldPosition);
             vec = vec.subtract(0.0, 0.5, 0.0);
             ParticleUtils.spawnParticleOnFace(level, this.getBlockPos().relative(Axis.Y, -2), Direction.UP,
-                    ParticleTypes.WAX_OFF, new Vec3(0.1, 0.1, 0.1), 0.5);
+                    ParticleTypes.WHITE_SMOKE, new Vec3(0.1, 0.1, 0.1), 0.5);
         }
     }
 
@@ -202,12 +196,11 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
         inv.setStackInSlot(1, this.filtering.getFilter());
         return new RecipeWrapper(inv);
     }
-
     protected BeltProcessingBehaviour.ProcessingResult onItemReceived(TransportedItemStack transported,
             TransportedItemStackHandlerBehaviour handler) {
-        if (handler.blockEntity.isVirtual()) {
-            return ProcessingResult.PASS;
-        } else if (!this.canFocus()) {
+        //if (handler.blockEntity.isVirtual()) {
+        //    return ProcessingResult.PASS;
+        /*} else*/ if (!this.canFocus()) {
             return ProcessingResult.PASS;
         } else {
             return BeamFocuserHelper.canBeProcessed(level,

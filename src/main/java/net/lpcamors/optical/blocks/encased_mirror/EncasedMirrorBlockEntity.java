@@ -2,11 +2,9 @@ package net.lpcamors.optical.blocks.encased_mirror;
 
 import javax.annotation.Nullable;
 
-import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
@@ -51,60 +49,9 @@ public class EncasedMirrorBlockEntity extends KineticBlockEntity {
     }
 
 
-    public boolean isRotating(){
-        return this.oAngle != this.angle;
-    }
-
-
     public float getIndependentAngle(float partialTicks) {
         return Mth.clamp(this.angle + partialTicks * this.rotVelocity, 0F, 90F);
     }
-
-    public @Nullable Direction getReflectedDirection(Direction dir, BlockState state){
-        if(this.getState() == null) return null;
-        Direction facing = this.getBlockState().getValue(DirectionalKineticBlock.FACING);
-        Direction direction = null;
-
-        if(facing.getAxis().isVertical()){
-            //ENCASED_MIRROR HORIZONTAL
-            if(dir.getAxis().isHorizontal()) {
-                direction = dir.getCounterClockWise();
-                if (dir.getAxis().equals(Direction.Axis.X)) {
-                    direction = direction.getOpposite();
-                }
-            }
-        } else {
-            if(dir.getAxis().isVertical()){
-                if(facing.getAxis().equals(Direction.Axis.X)){
-                    direction = Direction.NORTH;
-                } else {
-                    direction = Direction.WEST;
-                }
-                if(facing.getAxisDirection().equals(Direction.AxisDirection.POSITIVE)){
-                    direction = direction.getOpposite();
-                }
-                if(dir.getAxisDirection().equals(Direction.AxisDirection.NEGATIVE)){
-                    direction = direction.getOpposite();
-                }
-
-            } else {
-                if(!dir.getAxis().equals(facing.getAxis())) {
-                    direction = Direction.UP;
-                    if(facing.getAxisDirection().equals(Direction.AxisDirection.NEGATIVE)){
-                        direction = direction.getOpposite();
-                    }
-                    if(dir.getAxisDirection().equals(Direction.AxisDirection.NEGATIVE)){
-                        direction = direction.getOpposite();
-                    }
-                }
-            }
-        }
-
-        if(direction != null && !this.getState().isParallel()) direction = direction.getOpposite();
-
-        return direction;
-    }
-
 
     @Override
     protected void read(CompoundTag compound, HolderLookup.Provider prov, boolean clientPacket) {

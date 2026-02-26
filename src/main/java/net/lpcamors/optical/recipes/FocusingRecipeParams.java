@@ -196,9 +196,10 @@ public class FocusingRecipeParams extends ProcessingRecipeParams {
             }
 
             return new RecipeHolder<FocusingRecipe>(holder.id(),
-                    FocusingRecipe.focusing(getFromConfig(List.of(complement, dye), holder.value().getResultItem(level),
-                            Items.CHARCOAL.getDefaultInstance(),
-                            COConfigs.server().recipes.focusingColoringFailedOutputProbability.getF()),
+                    FocusingRecipe.focusing(
+                            getFromConfig(List.of(complement, dye), holder.value().getResultItem(level),
+                                    Items.CHARCOAL.getDefaultInstance(),
+                                    COConfigs.server().recipes.focusingColoringFailedOutputProbability.getF()),
                             BeamTypeCondition.VISIBLE));
         };
     }
@@ -269,10 +270,6 @@ public class FocusingRecipeParams extends ProcessingRecipeParams {
             return converter.apply(registryAccess);
         }
 
-        public Function<RegistryAccess, Function<RecipeHolder<?>, RecipeHolder<FocusingRecipe>>> getConverter() {
-            return converter;
-        }
-
         public Predicate<RecipeHolder<?>> getRecipePredicate() {
             if (this.recipePredicate == null)
                 CreateOptical.LOGGER.error("Trying to access null focusing profile predicate");
@@ -280,9 +277,11 @@ public class FocusingRecipeParams extends ProcessingRecipeParams {
         }
 
         private static boolean colorItems(RecipeHolder<?> r) {
-            return r.value().getIngredients().size() == 2
-                    && (r.value().getIngredients().get(0).getItems()[0].getItem() instanceof DyeItem
-                            ^ r.value().getIngredients().get(1).getItems()[0].getItem() instanceof DyeItem);
+            NonNullList<Ingredient> ing = r.value().getIngredients();
+            boolean f = ing.size() == 2 && ing.get(0).getItems().length > 0 && ing.get(1).getItems().length > 0;
+
+            return f && (ing.get(0).getItems()[0].getItem() instanceof DyeItem
+                    ^ r.value().getIngredients().get(1).getItems()[0].getItem() instanceof DyeItem);
         }
 
         public static void initializeRecipes(Level level) {

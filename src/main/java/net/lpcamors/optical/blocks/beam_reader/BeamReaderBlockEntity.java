@@ -134,7 +134,7 @@ public class BeamReaderBlockEntity extends SmartBlockEntity implements IHaveGogg
 
         @Override
         protected Vec3 getSouthLocation() {
-            return VecHelper.voxelSpace(8, 8f, 9.5f);
+            return VecHelper.voxelSpace(8, 8f, 10.5f);
         }
 
         @Override

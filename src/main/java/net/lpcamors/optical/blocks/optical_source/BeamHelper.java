@@ -98,6 +98,11 @@ public class BeamHelper {
     public static record BeamProperties(float intensity, Direction direction, BeamType beamType,
             BeamPolarization polarization, Vec3i color, List<BeamSignal> signal, boolean spin, boolean forceVisibility,
             boolean forcePenetration) {
+
+        public static BeamProperties BASE = new BeamProperties(1, Direction.UP, BeamType.VISIBLE,
+                BeamPolarization.RANDOM,
+                COUtils.getColor(DyeColor.LIGHT_GRAY), List.of(), false, false, false);
+
         public float getEffectiveSpeed() {
             return SPEED_CONSTANT * this.intensity * (this.spin ? 1 : -1);
         }
@@ -354,7 +359,7 @@ public class BeamHelper {
 
         @Override
         public String getTranslationKey() {
-            return "polarization." + this.getSerializedName();
+            return "create.create_optical.polarization." + this.getSerializedName();
         }
     }
 
