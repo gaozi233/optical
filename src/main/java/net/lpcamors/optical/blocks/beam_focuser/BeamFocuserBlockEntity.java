@@ -28,19 +28,17 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ParticleUtils;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.items.wrapper.RecipeWrapper;
 
 public class BeamFocuserBlockEntity extends KineticBlockEntity {
 
@@ -115,7 +113,7 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
             Vec3 vec = VecHelper.getCenterOf(this.worldPosition);
             vec = vec.subtract(0.0, 0.5, 0.0);
             ParticleUtils.spawnParticleOnFace(level, this.getBlockPos().relative(Axis.Y, -2), Direction.UP,
-                    ParticleTypes.WHITE_SMOKE, new Vec3(0.1, 0.1, 0.1), 0.5);
+                    ParticleTypes.SMOKE, new Vec3(0.1, 0.1, 0.1), 0.5);
         }
     }
 
@@ -157,13 +155,13 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
             return ProcessingResult.PASS;
         } else {
             BeamHelper.BeamType beamType = this.optionalBeamProperties.get().beamType();
-            Optional<RecipeHolder<FocusingRecipe>> recipe = BeamFocuserHelper.getFocusingRecipe(level,
+            Optional<FocusingRecipe> recipe = BeamFocuserHelper.getFocusingRecipe(level,
                     this.getWrapperFor(transported.stack), beamType);
             if (recipe.isEmpty())
                 return PASS;
 
             if (processingTicks == -1) {
-                this.baseProcessingDuration = recipe.get().value().getProcessingDuration();
+                this.baseProcessingDuration = recipe.get().getProcessingDuration();
                 processingTicks = this.getProcessDuration() + 5;
                 notifyUpdate();
                 return HOLD;
@@ -171,7 +169,7 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
 
             // Process finished
 
-            List<ItemStack> results = recipe.get().value().rollResults(level.random);
+            List<ItemStack> results = recipe.get().rollResults();
             transported.stack.shrink(1);
             ItemStack out = results.isEmpty() ? ItemStack.EMPTY : results.get(0);
             if (!out.isEmpty()) {
@@ -196,11 +194,12 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
         inv.setStackInSlot(1, this.filtering.getFilter());
         return new RecipeWrapper(inv);
     }
+
     protected BeltProcessingBehaviour.ProcessingResult onItemReceived(TransportedItemStack transported,
             TransportedItemStackHandlerBehaviour handler) {
-        //if (handler.blockEntity.isVirtual()) {
-        //    return ProcessingResult.PASS;
-        /*} else*/ if (!this.canFocus()) {
+        // if (handler.blockEntity.isVirtual()) {
+        // return ProcessingResult.PASS;
+        /* } else */ if (!this.canFocus()) {
             return ProcessingResult.PASS;
         } else {
             return BeamFocuserHelper.canBeProcessed(level,
@@ -209,8 +208,8 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
     }
 
     @Override
-    protected void read(CompoundTag compound, HolderLookup.Provider prov, boolean clientPacket) {
-        super.read(compound, prov, clientPacket);
+    protected void read(CompoundTag compound, boolean clientPacket) {
+        super.read(compound, clientPacket);
         this.optionalBeamProperties = BeamProperties.read(compound);
         this.processingTicks = compound.getInt("ProcessingTicks");
         this.baseProcessingDuration = compound.getInt("ProcessingDuration");
@@ -222,8 +221,8 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
     }
 
     @Override
-    public void write(CompoundTag compound, HolderLookup.Provider prov, boolean clientPacket) {
-        super.write(compound, prov, clientPacket);
+    public void write(CompoundTag compound, boolean clientPacket) {
+        super.write(compound, clientPacket);
         this.optionalBeamProperties.ifPresent(prop -> prop.write(compound));
         compound.putInt("ProcessingTicks", processingTicks);
         compound.putInt("ProcessingDuration", baseProcessingDuration);

@@ -21,7 +21,6 @@ import net.lpcamors.optical.data.COLang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -31,7 +30,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.fml.common.asm.enumextension.IExtensibleEnum;
+import net.minecraftforge.common.IExtensibleEnum;
 
 public class OpticalReceptorBlockEntity extends GeneratingKineticBlockEntity {
 
@@ -117,8 +116,8 @@ public class OpticalReceptorBlockEntity extends GeneratingKineticBlockEntity {
     }
 
     @Override
-    protected void read(CompoundTag compound, HolderLookup.Provider prov, boolean clientPacket) {
-        super.read(compound, prov, clientPacket);
+    protected void read(CompoundTag compound, boolean clientPacket) {
+        super.read(compound, clientPacket);
         if (compound.contains("IBeamSourceMap")) {
             ListTag listTag = (ListTag) compound.get("IBeamSourceMap");
             if (listTag != null) {
@@ -135,7 +134,7 @@ public class OpticalReceptorBlockEntity extends GeneratingKineticBlockEntity {
             ListTag list = (ListTag) compound.get("SensorMap");
             Arrays.stream(Direction.values()).forEach(direction -> {
                 ItemStack stack = direction.ordinal() < list.size()
-                        ? ItemStack.parseOptional(prov, (CompoundTag) list.get(direction.ordinal()))
+                        ? ItemStack.of((CompoundTag) list.get(direction.ordinal()))
                         : ItemStack.EMPTY;
                 this.sensors.put(direction, stack);
             });
@@ -150,9 +149,8 @@ public class OpticalReceptorBlockEntity extends GeneratingKineticBlockEntity {
     }
 
     @Override
-    public void write(CompoundTag compound, HolderLookup.Provider prov, boolean clientPacket) {
-
-        super.write(compound, prov, clientPacket);
+    public void write(CompoundTag compound, boolean clientPacket) {
+        super.write(compound, clientPacket);
         ListTag listTag1 = new ListTag();
         Arrays.stream(Direction.values()).forEach(direction -> {
             CompoundTag tag = new CompoundTag();
@@ -164,15 +162,15 @@ public class OpticalReceptorBlockEntity extends GeneratingKineticBlockEntity {
             listTag1.add(tag);
         });
         compound.put("IBeamSourceMap", listTag1);
-        writeSensors(compound, prov, this.sensors);
+        writeSensors(compound, this.sensors);
 
     }
 
-    public static void writeSensors(CompoundTag compound, HolderLookup.Provider prov, Map<Direction, ItemStack> map) {
+    public static void writeSensors(CompoundTag compound, Map<Direction, ItemStack> map) {
 
-        ListTag list = new ListTag(Direction.values().length);
+        ListTag list = new ListTag();
         Arrays.stream(Direction.values()).forEachOrdered(direction -> {
-            list.add(direction.ordinal(), map.get(direction).saveOptional(prov));
+            list.add(direction.ordinal(), map.get(direction).serializeNBT());
         });
         compound.put("SensorMap", list);
     }

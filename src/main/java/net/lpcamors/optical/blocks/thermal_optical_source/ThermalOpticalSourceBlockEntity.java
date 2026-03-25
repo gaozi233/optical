@@ -5,18 +5,19 @@ import java.util.List;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 
-import net.lpcamors.optical.blocks.COBlockEntities;
 import net.lpcamors.optical.blocks.optical_source.OpticalSourceBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class ThermalOpticalSourceBlockEntity extends OpticalSourceBlockEntity {
 
@@ -60,22 +61,19 @@ public class ThermalOpticalSourceBlockEntity extends OpticalSourceBlockEntity {
                 * (Fluids.WATER.getSource().isSame(fluid) ? 2F : Fluids.LAVA.getSource().isSame(fluid) ? 4F : 1F);
     }
 
-    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-
-        event.registerBlockEntity(
-                Capabilities.FluidHandler.BLOCK,
-                COBlockEntities.THERMAL_OPTICAL_SOURCE.get(),
-                (be, dir) -> {
-                    if (ThermalOpticalSourceBlock.hasPipeTowards(be.getBlockState(), dir))
-                        return be.internalTank.getCapability();
-                    return null;
-                });
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
+        if (cap == ForgeCapabilities.FLUID_HANDLER
+                && ThermalOpticalSourceBlock.hasPipeTowards(this.getBlockState(), side))
+            return this.internalTank.getCapability()
+                    .cast();
+        return super.getCapability(cap, side);
     }
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
         containedFluidTooltip(tooltip, isPlayerSneaking,
-                level.getCapability(Capabilities.FluidHandler.BLOCK, this.getBlockPos(), null));
+                getCapability(ForgeCapabilities.FLUID_HANDLER));
         return super.addToGoggleTooltip(tooltip, isPlayerSneaking);
     }
 

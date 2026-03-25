@@ -46,13 +46,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class COPonderScenes {
 
     public static void register(PonderSceneRegistrationHelper<ResourceLocation> helper) {
-        PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
+        PonderSceneRegistrationHelper<ItemProviderEntry<?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
 
         HELPER.forComponents(COBlocks.OPTICAL_SOURCE, COBlocks.LIGHT_OPTICAL_RECEPTOR, COBlocks.HEAVY_OPTICAL_RECEPTOR)
                 .addStoryBoard("opticals/base", COPonderScenes::base, COPonderTags.OPTICALS);
@@ -1116,7 +1116,8 @@ public class COPonderScenes {
         FluidStack content1 = new FluidStack(Fluids.LAVA
                 .getSource(), 1000);
         scene.world().modifyBlockEntity(source, ThermalOpticalSourceBlockEntity.class,
-                be -> be.internalTank.getPrimaryHandler().fill(content1, FluidAction.EXECUTE));
+                be -> be.internalTank.getPrimaryHandler().fill(content1,
+                        FluidAction.EXECUTE));
         scene.idle(10);
         scene.effects().indicateSuccess(source);
         scene.idle(10);
@@ -1307,7 +1308,7 @@ public class COPonderScenes {
         map.put(dir, COItems.OPTICAL_DEVICE.asStack());
         scene.world().modifyBlockEntityNBT(util.select().position(receptorPos), OpticalReceptorBlockEntity.class,
                 nbt -> {
-                    OpticalReceptorBlockEntity.writeSensors(nbt, scene.world().getHolderLookupProvider(), map);
+                    OpticalReceptorBlockEntity.writeSensors(nbt, map);
                 });
     }
 
@@ -1319,7 +1320,7 @@ public class COPonderScenes {
         }
         scene.world().modifyBlockEntityNBT(util.select().position(receptorPos), OpticalReceptorBlockEntity.class,
                 nbt -> {
-                    OpticalReceptorBlockEntity.writeSensors(nbt, scene.world().getHolderLookupProvider(), map);
+                    OpticalReceptorBlockEntity.writeSensors(nbt, map);
                 });
 
     }
@@ -1386,7 +1387,7 @@ public class COPonderScenes {
                     profile.stack = item;
                     profile.displayMode = mode;
                     profile.fixedAngle = angle;
-                    profile.write(nbt, scene.world().getHolderLookupProvider());
+                    profile.write(nbt);
                 });
     }
 
@@ -1399,7 +1400,7 @@ public class COPonderScenes {
                     profile.addSection(0, message);
                     profile.displayMode = mode;
                     profile.fixedAngle = angle;
-                    profile.write(nbt, scene.world().getHolderLookupProvider());
+                    profile.write(nbt);
                 });
     }
 

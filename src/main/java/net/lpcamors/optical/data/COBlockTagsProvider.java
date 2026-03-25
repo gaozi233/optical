@@ -1,17 +1,17 @@
 package net.lpcamors.optical.data;
 
+import java.util.concurrent.CompletableFuture;
+
+import org.jetbrains.annotations.Nullable;
+
 import net.lpcamors.optical.CreateOptical;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.data.BlockTagsProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-
-import org.jetbrains.annotations.Nullable;
-
-import java.util.concurrent.CompletableFuture;
+import net.minecraftforge.common.Tags;
+import net.minecraftforge.common.data.BlockTagsProvider;
+import net.minecraftforge.common.data.ExistingFileHelper;
 
 public class COBlockTagsProvider extends BlockTagsProvider {
 
@@ -47,9 +47,9 @@ public class COBlockTagsProvider extends BlockTagsProvider {
                 BlockTags.CROPS,
                 BlockTags.RAILS,
                 BlockTags.REPLACEABLE_BY_TREES,
-                Tags.Blocks.GLASS_BLOCKS,
+                Tags.Blocks.GLASS,
                 Tags.Blocks.GLASS_PANES);
         tag(COTags.Blocks.IMPENETRABLE).addTags(
-                Tags.Blocks.GLASS_BLOCKS_TINTED);
+                Tags.Blocks.GLASS_TINTED);
     }
 }

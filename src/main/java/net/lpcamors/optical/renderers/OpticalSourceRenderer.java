@@ -91,8 +91,8 @@ public class OpticalSourceRenderer extends KineticBlockEntityRenderer<GenericOpt
                 scaleForVec(laser0, dir.scale(length).add(nDir));
                 scaleForVec(laser0, nDir.scale(radius).add(dir));
                 rotateDirection(laser0, direction);
-                laser0.renderInto(ms, buffer.getBuffer(CORenderTypes.TRANSPARENT_ADDITIVE)
-                        .setLight((int) (LightTexture.FULL_BRIGHT)));
+                laser0.renderInto(ms,
+                        buffer.getBuffer(CORenderTypes.TRANSPARENT_ADDITIVE).uv2((int) (LightTexture.FULL_BRIGHT)));
 
             }
             ms.popPose();

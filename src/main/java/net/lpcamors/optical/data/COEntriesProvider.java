@@ -1,15 +1,15 @@
 package net.lpcamors.optical.data;
 
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+
 import net.lpcamors.optical.CODamageTypes;
 import net.lpcamors.optical.CreateOptical;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
-import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
-
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import net.minecraftforge.common.data.DatapackBuiltinEntriesProvider;
 
 public class COEntriesProvider extends DatapackBuiltinEntriesProvider {
 

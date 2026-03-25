@@ -12,7 +12,6 @@ import com.simibubi.create.foundation.gui.AllIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import io.netty.buffer.ByteBuf;
 import net.createmod.catnip.nbt.NBTHelper;
 import net.lpcamors.optical.CODamageSources;
 import net.lpcamors.optical.COIcons;
@@ -25,9 +24,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
@@ -40,51 +36,6 @@ import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BeamHelper {
-
-    public static StreamCodec<ByteBuf, List<BeamSignal>> SIGNALS_CODEC = new StreamCodec<ByteBuf, List<BeamSignal>>() {
-        public void encode(ByteBuf buffer, List<BeamSignal> value) {
-            buffer.writeInt(value.size());
-            value.forEach(a -> BeamSignal.CODEC.encode(buffer, a));
-        };
-
-        public List<BeamSignal> decode(ByteBuf buffer) {
-            int size = buffer.readInt();
-            ArrayList<BeamSignal> signals = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
-                signals.add(BeamSignal.CODEC.decode(buffer));
-            }
-            return signals;
-        };
-    };
-
-    public static StreamCodec<ByteBuf, BeamProperties> PROPERTIES_CODEC = new StreamCodec<ByteBuf, BeamHelper.BeamProperties>() {
-
-        public BeamProperties decode(ByteBuf buffer) {
-            return new BeamProperties(
-                    buffer.readFloat(),
-                    Direction.values()[buffer.readInt()],
-                    BeamType.values()[buffer.readInt()],
-                    BeamPolarization.values()[buffer.readInt()],
-                    FriendlyByteBuf.readBlockPos(buffer),
-                    SIGNALS_CODEC.decode(buffer),
-                    buffer.readBoolean(),
-                    buffer.readBoolean(),
-                    buffer.readBoolean());
-        }
-
-        public void encode(ByteBuf buffer, BeamProperties prop) {
-            buffer.writeFloat(prop.intensity);
-            buffer.writeInt(prop.direction.ordinal());
-            buffer.writeInt(prop.beamType.ordinal());
-            buffer.writeInt(prop.polarization().ordinal());
-            FriendlyByteBuf.writeBlockPos(buffer, new BlockPos(prop.color));
-            SIGNALS_CODEC.encode(buffer, prop.signal());
-            buffer.writeBoolean(prop.spin());
-            buffer.writeBoolean(prop.forceVisibility());
-            buffer.writeBoolean(prop.forcePenetration());
-
-        }
-    };
     public static final float SPEED_CONSTANT = 4F;
 
     public static float intensityBySpeed(float speed) {
@@ -461,13 +412,6 @@ public class BeamHelper {
                 return this.message();
             return null;
         }
-
-        public static final StreamCodec<ByteBuf, BeamSignal> CODEC = StreamCodec.composite(
-                ByteBufCodecs.VAR_INT,
-                BeamSignal::freq,
-                ByteBufCodecs.stringUtf8(8192).apply(ByteBufCodecs.list(5)),
-                BeamSignal::message,
-                BeamSignal::new);
 
         public void write(CompoundTag tag) {
             CompoundTag compound = new CompoundTag();

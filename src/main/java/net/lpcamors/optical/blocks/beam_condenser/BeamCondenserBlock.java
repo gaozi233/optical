@@ -2,7 +2,6 @@ package net.lpcamors.optical.blocks.beam_condenser;
 
 import java.util.Arrays;
 
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.foundation.block.IBE;
@@ -21,6 +20,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -30,15 +30,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class BeamCondenserBlock extends HorizontalDirectionalBlock
         implements GenericOpticalSourceBlockEntity.IBeamActivator, IBE<BeamCondenserBlockEntity>, IWrenchable {
-    public static final MapCodec<BeamCondenserBlock> CODEC = simpleCodec(BeamCondenserBlock::new);
 
     public BeamCondenserBlock(Properties p_54120_) {
         super(p_54120_);
-    }
-
-    @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-        return CODEC;
     }
 
     @Override
@@ -132,4 +126,8 @@ public class BeamCondenserBlock extends HorizontalDirectionalBlock
         return COBlockEntities.BEAM_CONDENSER.get();
     }
 
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return getBlockEntityType().create(pos, state);
+    }
 }

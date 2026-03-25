@@ -22,7 +22,7 @@ public class COPartialModels {
             HOLOGRAM_BEAM = block("hologram_source/hologram_beam");
 
     private static PartialModel block(String path) {
-        return PartialModel.of(ResourceLocation.fromNamespaceAndPath(CreateOptical.ID, "block/" + path));
+        return PartialModel.of(new ResourceLocation(CreateOptical.ID, "block/" + path));
     }
 
 }

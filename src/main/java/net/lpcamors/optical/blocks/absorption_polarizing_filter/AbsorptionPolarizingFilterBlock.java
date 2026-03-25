@@ -4,7 +4,6 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.data.AssetLookup;
@@ -28,6 +27,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -35,7 +35,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.ModelFile;
 
 public class AbsorptionPolarizingFilterBlock extends HorizontalDirectionalBlock implements IWrenchable,
         GenericOpticalSourceBlockEntity.IBeamActivator, IBE<AbsorptionPolarizingFilterBlockEntity> {
@@ -55,21 +55,12 @@ public class AbsorptionPolarizingFilterBlock extends HorizontalDirectionalBlock 
         };
     }
 
-    public static final MapCodec<AbsorptionPolarizingFilterBlock> CODEC = simpleCodec(
-            AbsorptionPolarizingFilterBlock::new);
-
     public static final EnumProperty<BeamHelper.BeamPolarization> POLARIZATION = EnumProperty.create("polarization",
             BeamHelper.BeamPolarization.class);
 
     public AbsorptionPolarizingFilterBlock(Properties p_54120_) {
         super(p_54120_);
         registerDefaultState(defaultBlockState().setValue(POLARIZATION, BeamHelper.BeamPolarization.HORIZONTAL));
-    }
-
-    @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-
-        return CODEC;
     }
 
     @Override
@@ -151,5 +142,10 @@ public class AbsorptionPolarizingFilterBlock extends HorizontalDirectionalBlock 
     @Override
     public BlockEntityType<? extends AbsorptionPolarizingFilterBlockEntity> getBlockEntityType() {
         return COBlockEntities.ABSORPTION_POLARIZING_FILTER.get();
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return getBlockEntityType().create(pos, state);
     }
 }

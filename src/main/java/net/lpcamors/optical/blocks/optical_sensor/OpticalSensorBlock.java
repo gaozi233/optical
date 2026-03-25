@@ -5,7 +5,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
@@ -29,7 +28,6 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -38,6 +36,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -50,8 +49,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.ConfiguredModel;
+import net.minecraftforge.client.model.generators.ModelFile;
 
 public class OpticalSensorBlock extends Block implements IWrenchable, IBeamActivator, IBE<OpticalSensorBlockEntity> {
     public static final List<String> CASINGS = List.of(
@@ -62,7 +61,6 @@ public class OpticalSensorBlock extends Block implements IWrenchable, IBeamActiv
             "refined_radiance",
             "shadow_steel");
     public static final BooleanProperty HANGING = BlockStateProperties.HANGING;
-    public static final MapCodec<OpticalSensorBlock> CODEC = simpleCodec(OpticalSensorBlock::new);
     public static final EnumProperty<Mode> MODE = EnumProperty.create("sensor_mode", Mode.class);
     public static final IntegerProperty CASING = IntegerProperty.create("casing", 0, CASINGS.size() - 1);
 
@@ -86,11 +84,6 @@ public class OpticalSensorBlock extends Block implements IWrenchable, IBeamActiv
         return state -> {
             return AssetLookup.partialBaseModel(c, p, CASINGS.get(state.getValue(CASING)));
         };
-    }
-
-    @Override
-    protected MapCodec<? extends Block> codec() {
-        return CODEC;
     }
 
     @Override
@@ -124,19 +117,20 @@ public class OpticalSensorBlock extends Block implements IWrenchable, IBeamActiv
     }
 
     @Override
-    public ItemInteractionResult useItemOn(ItemStack stack, @NotNull BlockState state, @NotNull Level level,
+    public InteractionResult use(@NotNull BlockState state, @NotNull Level level,
             @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand,
             BlockHitResult hitResult) {
+        ItemStack stack = player.getItemInHand(hand);
         if (!player.isShiftKeyDown()) {
             if (!stack.isEmpty() && !stack.getItem().equals(AllItems.WRENCH.get())) {
-                ItemInteractionResult[] result = { ItemInteractionResult.FAIL };
+                InteractionResult[] result = { InteractionResult.FAIL };
                 level.getBlockEntity(pos, this.getBlockEntityType()).ifPresent(be -> {
                     result[0] = be.tryChangeMaterial(stack);
                 });
                 return result[0];
             }
         }
-        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+        return super.use(state, level, pos, player, hand, hitResult);
     }
 
     @Override
@@ -284,6 +278,11 @@ public class OpticalSensorBlock extends Block implements IWrenchable, IBeamActiv
         public @NotNull String getSerializedName() {
             return this.name().toLowerCase(Locale.ROOT);
         }
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return getBlockEntityType().create(pos, state);
     }
 
 }

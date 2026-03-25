@@ -128,7 +128,7 @@ public interface IBeamReceiver {
         }
         Vec3 normal = Vec3.atLowerCornerOf(face.getNormal());
         Vec3 nHat = Vec3.atLowerCornerOf(face.getNormal().multiply(face.getAxisDirection().getStep())),
-                aabbMin = aabb.getMinPosition().multiply(nHat), aabbMax = aabb.getMaxPosition().multiply(nHat),
+                aabbMin = COUtils.getMinPos(aabb).multiply(nHat), aabbMax = COUtils.getMaxPos(aabb).multiply(nHat),
                 posVec = Vec3.atCenterOf(pos).add(normal).multiply(nHat);
         double d1 = COUtils.getPseudoLengthVec(aabbMin.subtract(posVec)) * (-face.getAxisDirection().getStep()),
                 d2 = COUtils.getPseudoLengthVec(aabbMax.subtract(posVec)) * (-face.getAxisDirection().getStep());

@@ -4,10 +4,11 @@ import com.simibubi.create.content.kinetics.gauge.GaugeBlock;
 import com.simibubi.create.foundation.data.DirectionalAxisBlockStateGen;
 import com.tterrag.registrate.providers.DataGenContext;
 import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.minecraftforge.client.model.generators.ModelFile;
 
 public class OpticalReceptorGenerator {
 
@@ -17,18 +18,20 @@ public class OpticalReceptorGenerator {
     public static class Receptor extends DirectionalAxisBlockStateGen {
 
         private final String name;
-        protected Receptor(String name){
+
+        protected Receptor(String name) {
             this.name = name;
         }
 
         @Override
-        public <T extends Block> String getModelPrefix(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov, BlockState state) {
-            return "block/"+this.name+"/base";
+        public <T extends Block> String getModelPrefix(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov,
+                BlockState state) {
+            return "block/" + this.name + "/base";
         }
 
         @Override
         public <T extends Block> ModelFile getModel(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider prov,
-                                                    BlockState state) {
+                BlockState state) {
             Direction direction = state.getValue(GaugeBlock.FACING);
             boolean alongFirst = state.getValue(GaugeBlock.AXIS_ALONG_FIRST_COORDINATE);
             boolean f0 = direction.getAxis().isVertical();
@@ -39,6 +42,5 @@ public class OpticalReceptorGenerator {
         }
 
     }
-
 
 }

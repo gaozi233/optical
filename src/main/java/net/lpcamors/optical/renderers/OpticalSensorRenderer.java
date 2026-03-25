@@ -49,4 +49,5 @@ public class OpticalSensorRenderer extends SafeBlockEntityRenderer<OpticalSensor
         }
         ms.popPose();
     }
+
 }

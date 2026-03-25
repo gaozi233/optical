@@ -103,7 +103,7 @@ public class COLang {
             if (this.pFix == null) {
                 CreateOptical.REGISTRATE.addRawLang(CreateOptical.ID + "." + s, value);
             } else {
-                CreateOptical.REGISTRATE.addLang(this.pFix, ResourceLocation.fromNamespaceAndPath(CreateOptical.ID, s),
+                CreateOptical.REGISTRATE.addLang(this.pFix, new ResourceLocation(CreateOptical.ID, s),
                         value);
             }
         }

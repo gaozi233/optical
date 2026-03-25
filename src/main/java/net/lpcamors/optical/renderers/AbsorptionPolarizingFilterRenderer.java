@@ -42,4 +42,6 @@ public class AbsorptionPolarizingFilterRenderer extends SafeBlockEntityRenderer<
         buffer.translate(-pivotX, -pivotY, -pivotZ);
         return buffer;
     }
+
+    
 }

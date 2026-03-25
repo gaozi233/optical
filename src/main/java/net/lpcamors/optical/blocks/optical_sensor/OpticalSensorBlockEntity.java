@@ -16,10 +16,9 @@ import net.lpcamors.optical.blocks.optical_source.BeamHelper.BeamProperties;
 import net.lpcamors.optical.data.COLang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -58,13 +57,13 @@ public class OpticalSensorBlockEntity extends SmartBlockEntity implements IHaveG
         }
     }
 
-    public ItemInteractionResult tryChangeMaterial(ItemStack stack) {
+    public InteractionResult tryChangeMaterial(ItemStack stack) {
         if (!(stack.getItem() instanceof BlockItem blockItem))
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         BlockState material = blockItem.getBlock()
                 .defaultBlockState();
         if (!material.is(AllTags.AllBlockTags.CASING.tag))
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         String name = blockItem.getDescriptionId();
         name = name.replace("block.create.", "").replace("_casing", "");
         int index = OpticalSensorBlock.CASINGS.indexOf(name);
@@ -72,16 +71,16 @@ public class OpticalSensorBlockEntity extends SmartBlockEntity implements IHaveG
             index = 0;
 
         if (index == this.getBlockState().getValue(OpticalSensorBlock.CASING))
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
 
         if (level.isClientSide() && !isVirtual())
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         this.level.setBlock(this.getBlockPos(),
                 this.getBlockState().setValue(OpticalSensorBlock.CASING, index), 1);
         notifyUpdate();
 
         level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, worldPosition, Block.getId(material));
-        return ItemInteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
 
     }
 
@@ -99,14 +98,14 @@ public class OpticalSensorBlockEntity extends SmartBlockEntity implements IHaveG
     }
 
     @Override
-    protected void read(CompoundTag compound, HolderLookup.Provider prov, boolean clientPacket) {
-        super.read(compound, prov, clientPacket);
+    protected void read(CompoundTag compound, boolean clientPacket) {
+        super.read(compound, clientPacket);
         this.optionalBeamProperties = BeamProperties.read(compound);
     }
 
     @Override
-    public void write(CompoundTag compound, HolderLookup.Provider prov, boolean clientPacket) {
-        super.write(compound, prov, clientPacket);
+    public void write(CompoundTag compound, boolean clientPacket) {
+        super.write(compound, clientPacket);
         this.optionalBeamProperties.ifPresent(prop -> prop.write(compound));
     }
 

@@ -20,16 +20,17 @@ public class PolarizingBeamSplitterRenderer extends SafeBlockEntityRenderer<Pola
 
     @Override
     public boolean shouldRender(PolarizingBeamSplitterBlockEntity p_173568_, Vec3 p_173569_) {
-        return super.shouldRender(p_173568_,p_173569_);
+        return super.shouldRender(p_173568_, p_173569_);
     }
 
     @Override
-    protected void renderSafe(PolarizingBeamSplitterBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource bufferSource, int light, int overlay) {
+    protected void renderSafe(PolarizingBeamSplitterBlockEntity be, float partialTicks, PoseStack ms,
+            MultiBufferSource bufferSource, int light, int overlay) {
 
         BlockState state = be.getBlockState();
         SuperByteBuffer cube = CachedBuffers.partial(COPartialModels.POLARIZING_BEAM_SPLITTER, state).light(light);
-        cube.renderInto(ms, bufferSource.getBuffer(CORenderTypes.TRANSLUCENT_NO_CULL));    
+        cube.renderInto(ms, bufferSource.getBuffer(CORenderTypes.TRANSLUCENT_NO_CULL));
     }
-    
+
 
 }

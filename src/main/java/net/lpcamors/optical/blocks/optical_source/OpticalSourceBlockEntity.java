@@ -18,8 +18,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class OpticalSourceBlockEntity extends GenericOpticalSourceBlockEntity {
 
@@ -65,7 +65,7 @@ public class OpticalSourceBlockEntity extends GenericOpticalSourceBlockEntity {
     @Override
     @OnlyIn(Dist.CLIENT)
     public AABB getRenderBoundingBox() {
-        return AABB.INFINITE;
+        return INFINITE_EXTENT_AABB;
     }
 
     @Override

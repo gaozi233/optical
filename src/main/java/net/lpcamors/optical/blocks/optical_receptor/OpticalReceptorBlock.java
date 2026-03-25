@@ -18,7 +18,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -27,6 +26,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -64,26 +64,27 @@ public class OpticalReceptorBlock extends DirectionalAxisKineticBlock
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-            Player player, InteractionHand interactionHand, BlockHitResult blockHitResult) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+        ItemStack stack = player.getItemInHand(hand);
         if (level.getBlockEntity(pos) instanceof OpticalReceptorBlockEntity opticalReceptorBlockEntity) {
             boolean f;
             if (stack.getItem().equals(COItems.OPTICAL_DEVICE.asItem())) {
                 ItemStack stack1 = stack.copy();
                 stack1.setCount(1);
-                f = opticalReceptorBlockEntity.addSensor(stack1, blockHitResult.getDirection());
+                f = opticalReceptorBlockEntity.addSensor(stack1, hit.getDirection());
 
                 if (f) {
                     if (!player.isCreative())
                         stack.shrink(1);
                 }
-                return f ? ItemInteractionResult.SUCCESS : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-            } else if (player.isShiftKeyDown() && player.getItemInHand(interactionHand).isEmpty()) {
-                f = opticalReceptorBlockEntity.removeSensor(blockHitResult.getDirection(), Optional.of(player));
-                return f ? ItemInteractionResult.SUCCESS : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+                return f ? InteractionResult.SUCCESS : InteractionResult.PASS;
+            } else if (player.isShiftKeyDown() && player.getItemInHand(hand).isEmpty()) {
+                f = opticalReceptorBlockEntity.removeSensor(hit.getDirection(), Optional.of(player));
+                return f ? InteractionResult.SUCCESS : InteractionResult.PASS;
             }
         }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
     }
 
     @Override
@@ -217,6 +218,11 @@ public class OpticalReceptorBlock extends DirectionalAxisKineticBlock
         public String getSerializedName() {
             return CreateOptical.ID + ".gear_heaviness." + this.name().toLowerCase(Locale.ROOT);
         }
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return getBlockEntityType().create(pos, state);
     }
 
 }

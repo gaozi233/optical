@@ -2,31 +2,19 @@ package net.lpcamors.optical;
 
 import net.createmod.ponder.foundation.PonderIndex;
 import net.lpcamors.optical.ponder.COPonderPlugin;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
-@Mod(value = CreateOptical.ID, dist = Dist.CLIENT)
 public class CreateOpticalClient {
 
-    
-	public CreateOpticalClient(IEventBus modEventBus) {
-		onCtorClient(modEventBus);
-	}
-
-	public static void onCtorClient(IEventBus modEventBus) {
-		modEventBus.addListener(CreateOpticalClient::clientInit);
+    public static void onCtorClient(IEventBus modEventBus, IEventBus forgeEventBus) {
+        modEventBus.addListener(CreateOpticalClient::clientInit);
     }
 
-    
-	public static void clientInit(final FMLClientSetupEvent event) {
-		COPartialModels.initiate();
+    public static void clientInit(final FMLClientSetupEvent event) {
+        COPartialModels.initiate();
         PonderIndex.addPlugin(new COPonderPlugin());
-	
+
     }
 
-
- 
-    
 }

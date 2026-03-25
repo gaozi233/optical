@@ -15,44 +15,35 @@ import net.lpcamors.optical.ponder.COPonderPlugin;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.data.event.GatherDataEvent;
 
 public class CODataGen {
 
-    public static void gatherDataHighPriority(GatherDataEvent event) {
-        if (event.getMods().contains(CreateOptical.ID))
-            addExtraRegistrateData();
-    }
-
     public static void gatherData(GatherDataEvent event) {
-        if (!event.getMods().contains(CreateOptical.ID))
-            return;
-        //
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
+        addExtraRegistrateData();
         COEntriesProvider generatedEntriesProvider = new COEntriesProvider(output, lookupProvider);
         generator.addProvider(event.includeServer(),
                 new COBlockTagsProvider(output, lookupProvider, existingFileHelper));
         generator.addProvider(event.includeServer(), generatedEntriesProvider);
-        generator.addProvider(event.includeServer(), new COSequencedAssemblyRecipeProvider(output, lookupProvider));
-        generator.addProvider(event.includeServer(), new FocusingRecipeGen(output, lookupProvider));
+        generator.addProvider(event.includeServer(), new COSequencedAssemblyRecipeProvider(output));
+        generator.addProvider(event.includeServer(), new FocusingRecipeGen(output));
 
     }
 
     private static void addExtraRegistrateData() {
         CreateOptical.REGISTRATE.addDataGenerator(ProviderType.LANG, provider -> {
             BiConsumer<String, String> langConsumer = provider::add;
-
-            //provideDefaultLang("interface", langConsumer);
-            //provideDefaultLang("tooltips", langConsumer);
             providePonderLang(langConsumer);
         });
 
     }
+
     private static void provideDefaultLang(String fileName, BiConsumer<String, String> consumer) {
         String path = "assets/create_optical/lang/default/" + fileName + ".json";
         JsonElement jsonElement = FilesHelper.loadJsonResource(path);

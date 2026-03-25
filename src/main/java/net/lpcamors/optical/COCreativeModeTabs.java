@@ -19,9 +19,9 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 public class COCreativeModeTabs {
 
@@ -32,7 +32,7 @@ public class COCreativeModeTabs {
 
     private static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister
             .create(Registries.CREATIVE_MODE_TAB, CreateOptical.ID);
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CO_BASE_CREATIVE_TAB = CREATIVE_MODE_TABS
+    public static final RegistryObject<CreativeModeTab> CO_BASE_CREATIVE_TAB = CREATIVE_MODE_TABS
             .register("co_base",
                     () -> CreativeModeTab.builder()
                             .title(COLang.Prefixes.CREATIVE_TAB.translate("co_base"))
@@ -60,7 +60,7 @@ public class COCreativeModeTabs {
 
         private static List<Item> collectBlocks(Predicate<Item> exclusionPredicate) {
             List<Item> items = new ReferenceArrayList<>();
-            for (RegistryEntry<Block, Block> entry : CreateOptical.REGISTRATE.getAll(Registries.BLOCK)) {
+            for (RegistryEntry<Block> entry : CreateOptical.REGISTRATE.getAll(Registries.BLOCK)) {
                 if (!CreateRegistrate.isInCreativeTab(entry, COCreativeModeTabs.CO_BASE_CREATIVE_TAB))
                     continue;
                 Item item = entry.get()
@@ -76,7 +76,7 @@ public class COCreativeModeTabs {
 
         private static List<Item> collectItems(Predicate<Item> exclusionPredicate) {
             List<Item> items = new ReferenceArrayList<>();
-            for (RegistryEntry<Item, Item> entry : CreateOptical.REGISTRATE.getAll(Registries.ITEM)) {
+            for (RegistryEntry<Item> entry : CreateOptical.REGISTRATE.getAll(Registries.ITEM)) {
                 if (!CreateRegistrate.isInCreativeTab(entry, COCreativeModeTabs.CO_BASE_CREATIVE_TAB))
                     continue;
                 Item item = entry.get();

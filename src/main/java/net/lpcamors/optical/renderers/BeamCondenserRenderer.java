@@ -19,5 +19,4 @@ public class BeamCondenserRenderer extends SafeBlockEntityRenderer<BeamCondenser
             OpticalSourceRenderer.renderLaserBeam(be, be.getBlockState(), ms, buffer);
         }
     }
-
 }

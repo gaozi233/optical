@@ -1,8 +1,8 @@
 package net.lpcamors.optical;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
+import com.simibubi.create.content.processing.recipe.ProcessingRecipeSerializer;
 import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
 
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -14,25 +14,22 @@ import net.lpcamors.optical.recipes.FocusingRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.ShapedRecipePattern;
-import net.minecraft.world.level.Level;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 
 public enum CORecipeTypes implements IRecipeTypeInfo, StringRepresentable {
-    FOCUSING(() -> new FocusingRecipe.Serializer<FocusingRecipe>(FocusingRecipe::new));
+
+    FOCUSING(() -> new ProcessingRecipeSerializer<>(FocusingRecipe::new));
 
     private final ResourceLocation id;
     private final Supplier<RecipeSerializer<?>> serializerSupplier;
-    private final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<?>> serializerObject;
+    private final RegistryObject<RecipeSerializer<?>> serializerObject;
     @Nullable
-    private final DeferredHolder<RecipeType<?>, RecipeType<?>> typeObject;
+    private final RegistryObject<RecipeType<?>> typeObject;
     private final Supplier<RecipeType<?>> type;
 
     CORecipeTypes(Supplier<RecipeSerializer<?>> serializerSupplier) {
@@ -47,7 +44,7 @@ public enum CORecipeTypes implements IRecipeTypeInfo, StringRepresentable {
 
     @Internal
     public static void register(IEventBus modEventBus) {
-        ShapedRecipePattern.setCraftingSize(9, 9);
+        ShapedRecipe.setCraftingSize(9, 9);
         Registers.SERIALIZER_REGISTER.register(modEventBus);
         Registers.TYPE_REGISTER.register(modEventBus);
     }
@@ -73,13 +70,8 @@ public enum CORecipeTypes implements IRecipeTypeInfo, StringRepresentable {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <I extends RecipeInput, R extends Recipe<I>> RecipeType<R> getType() {
-        return (RecipeType<R>) type.get();
-    }
-
-    public <I extends RecipeInput, R extends Recipe<I>> Optional<RecipeHolder<R>> find(I inv, Level world) {
-        return world.getRecipeManager()
-                .getRecipeFor(getType(), inv, world);
+    public <T extends RecipeType<?>> T getType() {
+        return (T) this.type.get();
     }
 
     @Override

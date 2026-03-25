@@ -33,7 +33,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.BlockItem;
@@ -47,13 +46,13 @@ import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.ClientHooks;
+import net.minecraftforge.client.ForgeHooksClient;
 
 public class HologramSourceRenderer extends SafeBlockEntityRenderer<HologramSourceBlockEntity> {
 
     private static final Map<Item, ModelResourceLocation> CUSTOM_ITEM_MODEL = Map.of(
-            Items.TRIDENT, ModelResourceLocation.inventory(ResourceLocation.withDefaultNamespace("trident")),
-            Items.SPYGLASS, ModelResourceLocation.inventory(ResourceLocation.withDefaultNamespace("spyglass")));
+            Items.TRIDENT, ModelResourceLocation.vanilla("trident", "inventory"),
+            Items.SPYGLASS, ModelResourceLocation.vanilla("spyglass", "inventory"));
 
     public HologramSourceRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -181,27 +180,26 @@ public class HologramSourceRenderer extends SafeBlockEntityRenderer<HologramSour
         float v0 = (timeOffset + lineOffset) % 1.0f;
         float v1 = v0 + aspect;
         int alpha = 175;
-        PoseStack.Pose pose = ms.last();
 
-        vc.addVertex(pose, x0, y0, 0)
-                .setColor(color.getX(), color.getY(), color.getZ(), alpha)
-                .setUv(0, v0).setUv2(15728880, 15728880)
-                .setNormal(pose, 0.0F, 0.0F, 1.0F);
+        vc.vertex(ms.last().pose(), x0, y0, 0)
+                .color(color.getX(), color.getY(), color.getZ(), alpha)
+                .uv(0, v0).uv2(15728880, 15728880)
+                .normal(ms.last().normal(), 0.0F, 0.0F, 1.0F);
 
-        vc.addVertex(pose, x0, y1, 0)
-                .setColor(color.getX(), color.getY(), color.getZ(), alpha)
-                .setUv(0, v1).setUv2(15728880, 15728880)
-                .setNormal(pose, 0.0F, 0.0F, 1.0F);
+        vc.vertex(ms.last().pose(), x0, y1, 0)
+                .color(color.getX(), color.getY(), color.getZ(), alpha)
+                .uv(0, v1).uv2(15728880, 15728880)
+                .normal(ms.last().normal(), 0.0F, 0.0F, 1.0F);
 
-        vc.addVertex(pose, x1, y1, 0)
-                .setColor(color.getX(), color.getY(), color.getZ(), alpha)
-                .setUv(1, v1).setUv2(15728880, 15728880)
-                .setNormal(pose, 0.0F, 0.0F, 1.0F);
+        vc.vertex(ms.last().pose(), x1, y1, 0)
+                .color(color.getX(), color.getY(), color.getZ(), alpha)
+                .uv(1, v1).uv2(15728880, 15728880)
+                .normal(ms.last().normal(), 0.0F, 0.0F, 1.0F);
 
-        vc.addVertex(pose, x1, y0, 0)
-                .setColor(color.getX(), color.getY(), color.getZ(), alpha)
-                .setUv(1, v0).setUv2(15728880, 15728880)
-                .setNormal(pose, 0.0F, 0.0F, 1.0F);
+        vc.vertex(ms.last().pose(), x1, y0, 0)
+                .color(color.getX(), color.getY(), color.getZ(), alpha)
+                .uv(1, v0).uv2(15728880, 15728880)
+                .normal(ms.last().normal(), 0.0F, 0.0F, 1.0F);
     }
 
     static void drawInWorldString(PoseStack ms, MultiBufferSource buffer, String c, int color, int bgColor) {
@@ -279,8 +277,7 @@ public class HologramSourceRenderer extends SafeBlockEntityRenderer<HologramSour
                 bakedModel = renderer.getItemModelShaper().getModelManager()
                         .getModel(CUSTOM_ITEM_MODEL.get(itemStack.getItem()));
             }
-
-            bakedModel = ClientHooks.handleCameraTransforms(ms, bakedModel, itemDisplayContext, p_115146_);
+            bakedModel = ForgeHooksClient.handleCameraTransforms(ms, bakedModel, itemDisplayContext, p_115146_);
             ms.translate(-0.5F, -0.5F, -0.5F);
 
             TransformStack.of(ms)
@@ -347,5 +344,6 @@ public class HologramSourceRenderer extends SafeBlockEntityRenderer<HologramSour
         }
 
     }
+
 
 }

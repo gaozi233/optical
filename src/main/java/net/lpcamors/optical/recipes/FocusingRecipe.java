@@ -4,33 +4,38 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import com.google.gson.JsonObject;
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.compat.jei.category.sequencedAssembly.SequencedAssemblySubCategory;
 import com.simibubi.create.content.processing.recipe.ProcessingOutput;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeParams;
+import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder.ProcessingRecipeParams;
 import com.simibubi.create.content.processing.sequenced.IAssemblyRecipe;
 
 import net.lpcamors.optical.CORecipeTypes;
+import net.lpcamors.optical.CreateOptical;
 import net.lpcamors.optical.blocks.COBlocks;
 import net.lpcamors.optical.blocks.beam_focuser.BeamFocuserBlockEntity;
 import net.lpcamors.optical.compat.jei.FocusingAssemblySubcategory;
 import net.lpcamors.optical.data.COLang;
 import net.lpcamors.optical.recipes.FocusingRecipeParams.BeamTypeCondition;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import net.minecraftforge.items.wrapper.RecipeWrapper;
 
-public class FocusingRecipe extends ProcessingRecipe<RecipeWrapper, FocusingRecipeParams> implements IAssemblyRecipe {
+@ParametersAreNonnullByDefault
+public class FocusingRecipe extends ProcessingRecipe<RecipeWrapper> implements IAssemblyRecipe {
 
     private static final String REQUIRED_BEAM_TYPE_KEY = "required_beam_type";
 
@@ -43,15 +48,15 @@ public class FocusingRecipe extends ProcessingRecipe<RecipeWrapper, FocusingReci
     }
 
     public FocusingRecipe(FocusingRecipeParams params) {
-        super(
-                CORecipeTypes.FOCUSING,
+        super(CORecipeTypes.FOCUSING,
                 params);
     }
 
     public FocusingRecipe(ProcessingRecipeParams params) {
         super(
                 CORecipeTypes.FOCUSING,
-                (FocusingRecipeParams) params);
+                params);
+
     }
 
     @Override
@@ -86,11 +91,33 @@ public class FocusingRecipe extends ProcessingRecipe<RecipeWrapper, FocusingReci
     }
 
     @Override
+    public void readAdditional(JsonObject json) {
+        super.readAdditional(json);
+        try {
+            this.beamTypeCondition = BeamTypeCondition.values()[GsonHelper.getAsInt(json, "beam_type")];
+        } catch (Exception ex) {
+            this.beamTypeCondition = BeamTypeCondition.NONE;
+        }
+    }
+
+    @Override
+    public void readAdditional(FriendlyByteBuf buffer) {
+        super.readAdditional(buffer);
+        this.beamTypeCondition = BeamTypeCondition.values()[buffer.readInt()];
+    }
+
+    @Override
+    public void writeAdditional(FriendlyByteBuf buffer) {
+        super.writeAdditional(buffer);
+        buffer.writeInt(this.beamTypeCondition.ordinal());
+    }
+
+    @Override
     public boolean matches(RecipeWrapper p_44002_, Level p_44003_) {
         if (p_44002_.isEmpty())
             return false;
         boolean f = this.getIngredient().test(p_44002_.getItem(0));
-        if (p_44002_.size() > 1) {
+        if (!p_44002_.getItem(1).isEmpty()) {
             f &= this.getSecondIngredient().test(p_44002_.getItem(1));
         }
         return f;
@@ -145,51 +172,53 @@ public class FocusingRecipe extends ProcessingRecipe<RecipeWrapper, FocusingReci
         return FocusingRecipeParams.BeamTypeCondition.NONE;
     }
 
-    public static class Serializer<R extends FocusingRecipe> implements RecipeSerializer<R> {
-        private final MapCodec<R> codec;
-        private final StreamCodec<RegistryFriendlyByteBuf, R> streamCodec;
-
-        public Serializer(ProcessingRecipe.Factory<FocusingRecipeParams, R> factory) {
-            this.codec = ProcessingRecipe.codec(factory, FocusingRecipeParams.CODEC);
-            this.streamCodec = ProcessingRecipe.streamCodec(factory, FocusingRecipeParams.STREAM_CODEC);
-        }
-
-        @Override
-        public MapCodec<R> codec() {
-            return codec;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, R> streamCodec() {
-            return streamCodec;
-        }
-
+    @Override
+    public boolean canCraftInDimensions(int width, int height) {
+        return false;
     }
 
-    @FunctionalInterface
-    public interface Factory<R extends FocusingRecipe> extends ProcessingRecipe.Factory<FocusingRecipeParams, R> {
-        R create(FocusingRecipeParams params);
+    @Override
+    public ItemStack getResultItem(RegistryAccess registryAccess) {
+        return getRollableResults().isEmpty() ? ItemStack.EMPTY
+                : getRollableResults().get(0)
+                        .getStack();
     }
 
-    public static class Builder<R extends FocusingRecipe>
-            extends ProcessingRecipeBuilder<FocusingRecipeParams, R, Builder<R>> {
-        public Builder(Factory<R> factory, ResourceLocation recipeId) {
+    @Override
+    public RecipeSerializer<?> getSerializer() {
+        return CORecipeTypes.FOCUSING.getSerializer();
+    }
+
+    @Override
+    public RecipeType<?> getType() {
+        return CORecipeTypes.FOCUSING.getType();
+    }
+
+    @Override
+    public ResourceLocation getId() {
+        return CreateOptical.loc("focusing_" + this.getOutput().getStack().getItem().toString());
+    }
+
+    public ItemStack assemble(RecipeWrapper container, RegistryAccess registryAccess) {
+        return getResultItem(registryAccess);
+    }
+
+    public static class Builder
+            extends ProcessingRecipeBuilder<FocusingRecipe> {
+
+        private FocusingRecipeParams.BeamTypeCondition beamTypeCondition;
+
+        public Builder setBeamTypeCondition(FocusingRecipeParams.BeamTypeCondition beamTypeCondition) {
+            this.beamTypeCondition = beamTypeCondition;
+            return this;
+        }
+
+        public FocusingRecipeParams.BeamTypeCondition getBeamTypeCondition() {
+            return beamTypeCondition;
+        }
+
+        public Builder(ProcessingRecipeFactory<FocusingRecipe> factory, ResourceLocation recipeId) {
             super(factory, recipeId);
-        }
-
-        @Override
-        protected FocusingRecipeParams createParams() {
-            return new FocusingRecipeParams();
-        }
-
-        public Builder<R> setBeamTypeCondition(BeamTypeCondition condition) {
-            this.params.condition = condition;
-            return this;
-        }
-
-        @Override
-        public Builder<R> self() {
-            return this;
         }
 
     }

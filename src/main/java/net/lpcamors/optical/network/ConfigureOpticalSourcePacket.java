@@ -1,60 +1,35 @@
 package net.lpcamors.optical.network;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.simibubi.create.content.trains.display.FlapDisplayBlockEntity;
 import com.simibubi.create.foundation.networking.BlockEntityDataPacket;
 
-import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.lpcamors.optical.blocks.optical_source.BeamHelper.BeamProperties;
-import net.lpcamors.optical.blocks.optical_source.BeamHelper;
 import net.lpcamors.optical.blocks.optical_source.GenericOpticalSourceBlockEntity;
-import net.lpcamors.optical.blocks.optical_source.GenericOpticalSourceBlockEntity.BeamSection;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class ConfigureOpticalSourcePacket extends BlockEntityDataPacket<GenericOpticalSourceBlockEntity> {
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, ConfigureOpticalSourcePacket> STREAM_CODEC = StreamCodec
-            .composite(
-                    BlockPos.STREAM_CODEC, packet -> packet.pos,
-                    CatnipStreamCodecBuilders.list(BeamSection.CODEC), p -> p.sections,
-                    ByteBufCodecs.map(HashMap::new, BlockPos.STREAM_CODEC, BeamHelper.PROPERTIES_CODEC),
-                    packet -> packet.activators,
-                    ConfigureOpticalSourcePacket::new);
+    private CompoundTag tag;
 
-    public final BlockPos pos;
-    public final List<BeamSection> sections;
-
-    public final Map<BlockPos, BeamProperties> activators;
     public ConfigureOpticalSourcePacket(GenericOpticalSourceBlockEntity be) {
-        this(be.getBlockPos(), List.copyOf(be.sections), Map.copyOf(be.activators));
+        super(be.getBlockPos());
+        tag = new CompoundTag();
+        be.writeSafe(tag);
+
     }
 
-    public ConfigureOpticalSourcePacket(BlockPos pos, List<BeamSection> sections,
-            Map<BlockPos, BeamProperties> activators) {
-        super(pos);
-        this.pos = pos;
-        this.sections = sections;
-        this.activators = activators;
+    public ConfigureOpticalSourcePacket(FriendlyByteBuf buffer) {
+        super(buffer);
+        tag = buffer.readNbt();
     }
 
     @Override
-    public PacketTypeProvider getTypeProvider() {
-        return COPackets.CONFIGURE_OPTICAL_SOURCE;
+    protected void writeData(FriendlyByteBuf buffer) {
+        buffer.writeNbt(this.tag);
     }
 
     @Override
     protected void handlePacket(GenericOpticalSourceBlockEntity blockEntity) {
-        blockEntity.sections.clear();
-        blockEntity.activators.clear();
-        blockEntity.sections.addAll(this.sections);
-        blockEntity.activators.putAll(this.activators);
-        blockEntity.updateSections();
+        blockEntity.load(tag);
     }
 
 }

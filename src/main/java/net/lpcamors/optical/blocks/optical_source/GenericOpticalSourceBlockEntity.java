@@ -11,9 +11,7 @@ import javax.annotation.Nullable;
 
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 
-import io.netty.buffer.ByteBuf;
 import net.createmod.catnip.lang.Lang;
-import net.createmod.catnip.platform.CatnipServices;
 import net.lpcamors.optical.COUtils;
 import net.lpcamors.optical.CreateOptical;
 import net.lpcamors.optical.blocks.hologram_source.HologramSourceBlock;
@@ -22,24 +20,23 @@ import net.lpcamors.optical.blocks.optical_source.BeamHelper.BeamType;
 import net.lpcamors.optical.blocks.optical_source.BeamHelper.BlockContext;
 import net.lpcamors.optical.data.COLang;
 import net.lpcamors.optical.data.COTags;
+import net.lpcamors.optical.network.COPackets;
 import net.lpcamors.optical.network.ConfigureOpticalSourcePacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BeaconBeamBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.PacketDistributor;
 
 public abstract class GenericOpticalSourceBlockEntity extends KineticBlockEntity {
 
@@ -81,11 +78,10 @@ public abstract class GenericOpticalSourceBlockEntity extends KineticBlockEntity
                 chargingTick--;
 
         }
-        if (this.level instanceof ServerLevel serverLevel) {
+        if (this.level instanceof ServerLevel) {
             if (shouldSendClient) {
-
-                CatnipServices.NETWORK.sendToClientsTrackingChunk(serverLevel,
-                        new ChunkPos(this.getBlockPos()),
+                COPackets.getChannel().send(
+                        PacketDistributor.TRACKING_CHUNK.with(this::containedChunk),
                         new ConfigureOpticalSourcePacket(this));
                 this.shouldSendClient = false;
             }
@@ -275,8 +271,10 @@ public abstract class GenericOpticalSourceBlockEntity extends KineticBlockEntity
             if (tag.contains("BeamSection")) {
                 CompoundTag compound = tag.getCompound("BeamSection");
                 try {
-                    return Optional.of(new BeamSection(NbtUtils.readBlockPos(compound, "FromPos").get(),
-                            NbtUtils.readBlockPos(compound, "ToPos").get(),
+                    CompoundTag from = compound.getCompound("FromPos");
+                    CompoundTag to = compound.getCompound("ToPos");
+                    return Optional.of(new BeamSection(NbtUtils.readBlockPos(from),
+                            NbtUtils.readBlockPos(to),
                             BeamProperties.read(compound).get()));
                 } catch (Exception ex) {
 
@@ -293,20 +291,23 @@ public abstract class GenericOpticalSourceBlockEntity extends KineticBlockEntity
             tag.put("BeamSection", compound);
 
         }
-
-        public static StreamCodec<ByteBuf, BeamSection> CODEC = new StreamCodec<ByteBuf, BeamSection>() {
-
-            public BeamSection decode(ByteBuf buffer) {
-                return new BeamSection(FriendlyByteBuf.readBlockPos(buffer), FriendlyByteBuf.readBlockPos(buffer),
-                        BeamHelper.PROPERTIES_CODEC.decode(buffer));
-            }
-
-            public void encode(ByteBuf buffer, BeamSection section) {
-                FriendlyByteBuf.writeBlockPos(buffer, new BlockPos(section.fromPos));
-                FriendlyByteBuf.writeBlockPos(buffer, new BlockPos(section.toPos));
-                BeamHelper.PROPERTIES_CODEC.encode(buffer, section.beamProperties);
-            }
-        };
+        /*
+         * public static StreamCodec<ByteBuf, BeamSection> CODEC = new
+         * StreamCodec<ByteBuf, BeamSection>() {
+         * 
+         * public BeamSection decode(ByteBuf buffer) {
+         * return new BeamSection(FriendlyByteBuf.readBlockPos(buffer),
+         * FriendlyByteBuf.readBlockPos(buffer),
+         * BeamHelper.PROPERTIES_CODEC.decode(buffer));
+         * }
+         * 
+         * public void encode(ByteBuf buffer, BeamSection section) {
+         * FriendlyByteBuf.writeBlockPos(buffer, new BlockPos(section.fromPos));
+         * FriendlyByteBuf.writeBlockPos(buffer, new BlockPos(section.toPos));
+         * BeamHelper.PROPERTIES_CODEC.encode(buffer, section.beamProperties);
+         * }
+         * };
+         */
     }
 
     private static final Function<BeaconBeamBlock, Function<BeamProperties, BeamProperties>> COLOR_GLASS_FUNCTION = beacon -> {

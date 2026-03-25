@@ -24,8 +24,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
@@ -236,25 +234,23 @@ public class HologramSourceBlockEntity extends SmartBlockEntity
     }
 
     @Override
-    protected void read(CompoundTag tag, HolderLookup.Provider prov, boolean clientPacket) {
-        super.read(tag, prov, clientPacket);
+    protected void read(CompoundTag tag, boolean clientPacket) {
+        super.read(tag, clientPacket);
         this.optionalBeamProperties = BeamProperties.read(tag);
-        NbtUtils.readBlockPos(tag, "ControllerPos").ifPresent(a -> {
-            this.controllerPos = a;
-        });
-        this.profile = HologramSourceProfile.read(tag, prov);
+        this.controllerPos = NbtUtils.readBlockPos(tag.getCompound("ControllerPos"));
+        this.profile = HologramSourceProfile.read(tag);
     }
 
     @Override
-    protected void write(CompoundTag tag, HolderLookup.Provider prov, boolean clientPacket) {
-        super.write(tag, prov, clientPacket);
+    protected void write(CompoundTag tag, boolean clientPacket) {
+        super.write(tag, clientPacket);
         this.optionalBeamProperties.ifPresent(prop -> {
             prop.write(tag);
         });
         if (this.controllerPos != null)
             tag.put("ControllerPos", NbtUtils.writeBlockPos(this.controllerPos));
         if (this.profile != null)
-            this.getProfile().write(tag, prov);
+            this.getProfile().write(tag);
 
     }
 
@@ -340,7 +336,7 @@ public class HologramSourceBlockEntity extends SmartBlockEntity
                 this.messages.set(i, section);
         }
 
-        public void write(CompoundTag tag, HolderLookup.Provider prov) {
+        public void write(CompoundTag tag) {
             CompoundTag profile = new CompoundTag();
             profile.putInt("Length", this.connectionLength);
             profile.putInt("Angle", this.fixedAngle);
@@ -352,12 +348,12 @@ public class HologramSourceBlockEntity extends SmartBlockEntity
                 t.putString("String", s);
                 return t;
             }));
-            profile.put("Stack", this.stack.saveOptional(prov));
+            profile.put("Stack", this.stack.serializeNBT());
 
             tag.put("Profile", profile);
         }
 
-        public static @Nullable HologramSourceProfile read(CompoundTag tag, HolderLookup.Provider prov) {
+        public static @Nullable HologramSourceProfile read(CompoundTag tag) {
             HologramSourceProfile profile = null;
             if (tag.contains("Profile")) {
                 CompoundTag profileTag = tag.getCompound("Profile");
@@ -374,7 +370,7 @@ public class HologramSourceBlockEntity extends SmartBlockEntity
                             profile.addSection(i, sections.get(i));
                         }
                     }
-                    profile.stack = ItemStack.parseOptional(prov, profileTag.getCompound("Stack"));
+                    profile.stack = ItemStack.of(profileTag.getCompound("Stack"));
                 } catch (Exception ex) {
                     CreateOptical.LOGGER.info("Unable to read HologramSourceProfile");
                 }
@@ -430,21 +426,21 @@ public class HologramSourceBlockEntity extends SmartBlockEntity
             return s;
         }
 
-        public void write(CompoundTag tag, HolderLookup.Provider prov) {
+        public void write(CompoundTag tag) {
             tag.put("DisplaySection",
                     NBTHelper.writeCompoundList(this.line(), component -> {
                         CompoundTag c = new CompoundTag();
-                        c.putString("Element", Component.Serializer.toJson(component, prov));
+                        c.putString("Element", Component.Serializer.toJson(component));
                         return c;
                     }));
         }
 
-        public static DisplaySection read(CompoundTag tag, HolderLookup.Provider prov) {
+        public static DisplaySection read(CompoundTag tag) {
             ArrayList<MutableComponent> components = new ArrayList<>();
             if (tag.contains("DisplaySection")) {
                 ListTag list = tag.getList("DisplaySection", Tag.TAG_COMPOUND);
                 components.addAll(NBTHelper.readCompoundList(list, compound -> {
-                    return Component.Serializer.fromJson(compound.getString("Element"), RegistryAccess.EMPTY);
+                    return Component.Serializer.fromJson(compound.getString("Element"));
                 }));
             }
             return new DisplaySection(components);

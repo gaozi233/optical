@@ -14,8 +14,6 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollValueBehaviour;
 
-import org.jetbrains.annotations.NotNull;
-
 import dev.engine_room.flywheel.lib.transform.TransformStack;
 import net.createmod.catnip.lang.Lang;
 import net.createmod.catnip.math.AngleHelper;
@@ -29,8 +27,6 @@ import net.lpcamors.optical.blocks.optical_source.BeamHelper.BeamSignal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -92,8 +88,8 @@ public class BeamModulatorBlockEntity extends SmartBlockEntity implements IHaveG
     }
 
     @Override
-    protected void read(CompoundTag compoundTag, HolderLookup.Provider prov, boolean clientPacket) {
-        super.read(compoundTag, prov, clientPacket);
+    protected void read(CompoundTag compoundTag, boolean clientPacket) {
+        super.read(compoundTag, clientPacket);
         this.signal.clear();
         if (compoundTag.contains("Signal")) {
             this.signal
@@ -105,8 +101,8 @@ public class BeamModulatorBlockEntity extends SmartBlockEntity implements IHaveG
     };
 
     @Override
-    protected void write(CompoundTag compoundTag, HolderLookup.Provider prov, boolean clientPacket) {
-        super.write(compoundTag, prov, clientPacket);
+    protected void write(CompoundTag compoundTag, boolean clientPacket) {
+        super.write(compoundTag, clientPacket);
 
         compoundTag.put("Signal", NBTHelper.writeCompoundList(this.signal, a -> {
             CompoundTag tag = new CompoundTag();
@@ -181,7 +177,7 @@ public class BeamModulatorBlockEntity extends SmartBlockEntity implements IHaveG
         }
 
         @Override
-        public boolean readFromClipboard(@NotNull Provider registries, CompoundTag tag, Player player, Direction side,
+        public boolean readFromClipboard(CompoundTag tag, Player player, Direction side,
                 boolean simulate) {
 
             ItemStack stack = player.getItemInHand(InteractionHand.MAIN_HAND);
@@ -205,7 +201,7 @@ public class BeamModulatorBlockEntity extends SmartBlockEntity implements IHaveG
                     be.addMessages(strings);
                 }
             }
-            return super.readFromClipboard(registries, tag, player, side, simulate);
+            return super.readFromClipboard(tag, player, side, simulate);
         }
 
     }

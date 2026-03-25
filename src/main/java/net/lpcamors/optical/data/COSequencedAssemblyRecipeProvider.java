@@ -1,6 +1,6 @@
 package net.lpcamors.optical.data;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
@@ -12,6 +12,8 @@ import com.simibubi.create.content.fluids.transfer.FillingRecipe;
 import com.simibubi.create.content.kinetics.deployer.DeployerApplicationRecipe;
 import com.simibubi.create.content.kinetics.press.PressingRecipe;
 import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
+import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder.ProcessingRecipeFactory;
+import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder.ProcessingRecipeParams;
 import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipeBuilder;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
@@ -22,8 +24,8 @@ import net.lpcamors.optical.items.COItems;
 import net.lpcamors.optical.recipes.FocusingRecipe;
 import net.lpcamors.optical.recipes.FocusingRecipeParams.BeamTypeCondition;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
@@ -34,16 +36,27 @@ import net.minecraft.world.level.material.Fluids;
 
 public class COSequencedAssemblyRecipeProvider extends SequencedAssemblyRecipeGen {
 
-    Function<ResourceLocation, FocusingRecipe.Builder<FocusingRecipe>> FOCUSING_BUILDER = loc -> new FocusingRecipe.Builder<>(
-            FocusingRecipe::new, loc);;
+    private static Function<BeamTypeCondition, ProcessingRecipeFactory<FocusingRecipe>> FACTORY = cond -> new ProcessingRecipeFactory<FocusingRecipe>() {
 
-    GeneratedRecipe 
-            MIRROR = createSequenced("mirror_item", b -> b.require(Items.GLASS_PANE)
-                    .transitionTo(COItems.INCOMPLETE_MIRROR)
-                    .addOutput(COItems.MIRROR, 100)
-                    .loops(1)
-                    .addStep(FillingRecipe::new, rb -> rb.require(Fluids.WATER, 250))
-                    .addStep(PressingRecipe::new, rb -> rb)),
+        @Override
+        public FocusingRecipe create(ProcessingRecipeParams params) {
+            FocusingRecipe recipe = new FocusingRecipe(params);
+            recipe.beamTypeCondition = cond;
+            return recipe;
+        }
+
+    };
+
+    public COSequencedAssemblyRecipeProvider(PackOutput output, String defaultNamespace) {
+        super(output, defaultNamespace);
+    }
+
+    GeneratedRecipe MIRROR = createSequenced("mirror_item", b -> b.require(Items.GLASS_PANE)
+            .transitionTo(COItems.INCOMPLETE_MIRROR)
+            .addOutput(COItems.MIRROR, 100)
+            .loops(1)
+            .addStep(FillingRecipe::new, rb -> rb.require(Fluids.WATER, 250))
+            .addStep(PressingRecipe::new, rb -> rb)),
 
             POLARIZING_FILTER = createSequenced("polarizing_filter", b -> b.require(Items.TINTED_GLASS)
                     .transitionTo(COItems.INCOMPLETE_POLARIZING_FILTER)
@@ -67,7 +80,7 @@ public class COSequencedAssemblyRecipeProvider extends SequencedAssemblyRecipeGe
                     .loops(1)
                     .addStep(DeployerApplicationRecipe::new, rb -> rb.require(AllItems.IRON_SHEET))
                     .addStep(DeployerApplicationRecipe::new, rb -> rb.require(Items.GLASS_PANE))
-                    .addStep(FOCUSING_BUILDER, a -> a.setBeamTypeCondition(BeamTypeCondition.GAMMA))),
+                    .addStep(FACTORY.apply(BeamTypeCondition.NONE), a -> a)),
 
             COPPER_COIL = coil("copper", COItems.COPPER_COIL, 3),
 
@@ -76,7 +89,7 @@ public class COSequencedAssemblyRecipeProvider extends SequencedAssemblyRecipeGe
             ZINC_COIL = coil("zinc", COItems.ZINC_COIL, 4),
 
             ROSE_QUARTZ_CATALYST_COIL = coil("rose_quartz_catalyst", COItems.ROSE_QUARTZ_CATALYST_COIL, 3,
-                    b -> b.addStep(FOCUSING_BUILDER, a -> a.setBeamTypeCondition(BeamTypeCondition.GAMMA))),
+                    b -> b.addStep(FACTORY.apply(BeamTypeCondition.GAMMA), a -> a)),
 
             OPTICAL_SOURCE = viaShaped(COBlocks.OPTICAL_SOURCE::asItem,
                     b -> b.define('C', AllBlocks.COGWHEEL)
@@ -184,11 +197,11 @@ public class COSequencedAssemblyRecipeProvider extends SequencedAssemblyRecipeGe
                     .pattern("B"),
                     has(AllBlocks.BRASS_CASING::get));
 
-    public <T extends ProcessingRecipe<?, ?>> GeneratedRecipe coil(String name, ItemEntry<?> item, int loops) {
+    public <T extends ProcessingRecipe<?>> GeneratedRecipe coil(String name, ItemEntry<?> item, int loops) {
         return coil(name, item, loops, a -> a);
     }
 
-    public <T extends ProcessingRecipe<?, ?>> GeneratedRecipe coil(String name, ItemEntry<?> item, int loops,
+    public <T extends ProcessingRecipe<?>> GeneratedRecipe coil(String name, ItemEntry<?> item, int loops,
             Function<SequencedAssemblyRecipeBuilder, SequencedAssemblyRecipeBuilder> func) {
         UnaryOperator<SequencedAssemblyRecipeBuilder> builder = b -> func.apply(b.require(AllItems.ANDESITE_ALLOY)
                 .transitionTo(COUtils.EQ_INCOMPLETE.get(item))
@@ -201,15 +214,14 @@ public class COSequencedAssemblyRecipeProvider extends SequencedAssemblyRecipeGe
         return createSequenced(name + "_coil", builder);
     }
 
-    public COSequencedAssemblyRecipeProvider(PackOutput output,
-            CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, lookupProvider, CreateOptical.ID);
+    public COSequencedAssemblyRecipeProvider(PackOutput output) {
+        super(output, CreateOptical.ID);
     }
 
     protected GeneratedRecipe createSequenced(String name, UnaryOperator<SequencedAssemblyRecipeBuilder> transform) {
         GeneratedRecipe generatedRecipe = c -> transform
                 .apply(new SequencedAssemblyRecipeBuilder(
-                        ResourceLocation.fromNamespaceAndPath(CreateOptical.ID, name)))
+                        new ResourceLocation(CreateOptical.ID, name)))
                 .build(c);
 
         all.add(generatedRecipe);
@@ -250,5 +262,10 @@ public class COSequencedAssemblyRecipeProvider extends SequencedAssemblyRecipeGe
             b.unlockedBy("has_item", inventoryTrigger(unlockedBy.get()));
             b.save(consumer);
         });
+    }
+
+    @Override
+    protected void buildRecipes(Consumer<FinishedRecipe> writer) {
+        super.buildRecipes(writer);
     }
 }

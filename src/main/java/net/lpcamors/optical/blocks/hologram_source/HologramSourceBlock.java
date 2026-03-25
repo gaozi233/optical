@@ -3,7 +3,6 @@ package net.lpcamors.optical.blocks.hologram_source;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.AllItems;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
@@ -37,7 +36,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -45,6 +44,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
@@ -56,13 +56,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.ticks.LevelTickAccess;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.model.generators.ModelFile;
 
 public class HologramSourceBlock extends Block
         implements IBeamActivator, IWrenchable, IBE<HologramSourceBlockEntity> {
-
-    public static final MapCodec<HologramSourceBlock> CODEC = simpleCodec(HologramSourceBlock::new);
 
     public static final Property<Axis> HORIZONTAL_AXIS = BlockStateProperties.HORIZONTAL_AXIS;
     public static final BooleanProperty RIGHT = BooleanProperty.create("positive_connection");
@@ -117,7 +116,7 @@ public class HologramSourceBlock extends Block
     }
 
     @Override
-    protected void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState newState,
+    public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState newState,
             boolean movedByPiston) {
         super.onRemove(pState, pLevel, pPos, newState, movedByPiston);
         LevelTickAccess<Block> blockTicks = pLevel.getBlockTicks();
@@ -254,50 +253,51 @@ public class HologramSourceBlock extends Block
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-            Player player, InteractionHand interactionHand, BlockHitResult hitResult) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos,
+            Player player, InteractionHand hand, BlockHitResult hitResult) {
+        ItemStack stack = player.getItemInHand(hand);
         if (!player.mayBuild())
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         boolean f = player.isShiftKeyDown();
         IPlacementHelper helper = PlacementHelpers.get(placementHelperId);
         if (helper.matchesItem(stack) && !f)
             return helper.getOffset(player, level, state, pos, hitResult)
-                    .placeInWorld(level, (BlockItem) stack.getItem(), player, interactionHand, hitResult);
+                    .placeInWorld(level, (BlockItem) stack.getItem(), player, hand, hitResult);
 
         if (!f && stack.isEmpty()) {
             if (player.level().isClientSide) {
                 level.getBlockEntity(pos, this.getBlockEntityType()).ifPresent(be -> {
                     CompoundTag tag = new CompoundTag();
-                    be.write(tag, level.registryAccess(), true);
+                    be.write(tag, true);
                 });
                 CatnipServices.PLATFORM.executeOnClientOnly(() -> () -> {
                     this.displayScreen(player, level, pos);
                 });
 
-                return ItemInteractionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         }
 
         HologramSourceBlockEntity be = getBlockEntity(level, pos);
         if (be == null)
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         be = be.getController();
         if (be == null || be.getProfile() == null)
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
 
         if (!level.isClientSide) {
             if (!stack.isEmpty()) {
-                if (!stack.is(AllItems.WRENCH)) {
+                if (!stack.is(AllItems.WRENCH.asItem())) {
                     be.getProfile().setItemStack(stack.copy());
                     be.update();
                 }
             } else if (f) {
                 be.getProfile().setItemStack(ItemStack.EMPTY);
                 be.update();
-            } 
+            }
         }
 
-        return ItemInteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @OnlyIn(value = Dist.CLIENT)
@@ -309,7 +309,8 @@ public class HologramSourceBlock extends Block
         }
     }
 
-    public static <T extends Block> Function<BlockState, net.neoforged.neoforge.client.model.generators.ModelFile> getBlockModel(
+    public static <T extends Block> Function<BlockState, ModelFile> getBlockModel(
+
             DataGenContext<Block, T> c, RegistrateBlockstateProvider p) {
         return state -> AssetLookup.partialBaseModel(c, p, getNameForState(state));
     }
@@ -352,4 +353,8 @@ public class HologramSourceBlock extends Block
         }
     }
 
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return getBlockEntityType().create(pos, state);
+    }
 }

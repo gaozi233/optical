@@ -16,14 +16,13 @@ import net.lpcamors.optical.blocks.optical_source.BeamHelper.BeamProperties;
 import net.lpcamors.optical.blocks.optical_source.GenericOpticalSourceBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class BeamCondenserBlockEntity extends GenericOpticalSourceBlockEntity {
 
@@ -95,13 +94,13 @@ public class BeamCondenserBlockEntity extends GenericOpticalSourceBlockEntity {
     @Override
     @OnlyIn(Dist.CLIENT)
     public AABB getRenderBoundingBox() {
-        return AABB.INFINITE;
+        return INFINITE_EXTENT_AABB;
     }
 
     @Override
-    protected void write(CompoundTag compound, Provider registries, boolean clientPacket) {
-        super.write(compound, registries, clientPacket);
-        ListTag tag = new ListTag(Direction.values().length);
+    protected void write(CompoundTag compound, boolean clientPacket) {
+        super.write(compound, clientPacket);
+        ListTag tag = new ListTag();
         for (Direction values : Direction.values()) {
             this.beams.get(values).ifPresentOrElse(
                     a -> {
@@ -120,8 +119,8 @@ public class BeamCondenserBlockEntity extends GenericOpticalSourceBlockEntity {
     }
 
     @Override
-    protected void read(CompoundTag compound, Provider registries, boolean clientPacket) {
-        super.read(compound, registries, clientPacket);
+    protected void read(CompoundTag compound, boolean clientPacket) {
+        super.read(compound, clientPacket);
         if (compound.contains("Beams")) {
             ListTag list = compound.getList("Beams", 0);
             for (Direction direction : Direction.values()) {

@@ -1,6 +1,5 @@
 package net.lpcamors.optical.blocks.beam_modulator;
 
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
 
@@ -16,6 +15,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -25,9 +25,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class BeamModulatorBlock extends HorizontalDirectionalBlock implements IWrenchable,
         GenericOpticalSourceBlockEntity.IBeamActivator, IBE<BeamModulatorBlockEntity> {
-
-    public static final MapCodec<BeamModulatorBlock> CODEC = simpleCodec(
-            BeamModulatorBlock::new);
 
     public BeamModulatorBlock(Properties properties) {
         super(properties);
@@ -89,11 +86,6 @@ public class BeamModulatorBlock extends HorizontalDirectionalBlock implements IW
     }
 
     @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-        return CODEC;
-    }
-
-    @Override
     public Class<BeamModulatorBlockEntity> getBlockEntityClass() {
         return BeamModulatorBlockEntity.class;
     }
@@ -101,5 +93,10 @@ public class BeamModulatorBlock extends HorizontalDirectionalBlock implements IW
     @Override
     public BlockEntityType<? extends BeamModulatorBlockEntity> getBlockEntityType() {
         return COBlockEntities.BEAM_MODULATOR.get();
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return getBlockEntityType().create(pos, state);
     }
 }

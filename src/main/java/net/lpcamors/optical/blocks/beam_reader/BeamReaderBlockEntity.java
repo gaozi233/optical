@@ -18,7 +18,6 @@ import net.lpcamors.optical.data.COLang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -67,14 +66,14 @@ public class BeamReaderBlockEntity extends SmartBlockEntity implements IHaveGogg
     }
 
     @Override
-    protected void read(CompoundTag compound, HolderLookup.Provider prov, boolean clientPacket) {
-        super.read(compound, prov, clientPacket);
+    protected void read(CompoundTag compound, boolean clientPacket) {
+        super.read(compound, clientPacket);
         this.optionalBeamProperties = BeamProperties.read(compound);
     }
 
     @Override
-    public void write(CompoundTag compound, HolderLookup.Provider prov, boolean clientPacket) {
-        super.write(compound, prov, clientPacket);
+    public void write(CompoundTag compound, boolean clientPacket) {
+        super.write(compound, clientPacket);
         this.optionalBeamProperties.ifPresent(prop -> prop.write(compound));
     }
 
@@ -121,7 +120,7 @@ public class BeamReaderBlockEntity extends SmartBlockEntity implements IHaveGogg
 
             Lang.builder("")
                     .add(COLang.Prefixes.CREATE.translate(("gui.goggles.no_beam")).withStyle(ChatFormatting.GRAY))
-                    .forGoggles(tooltip,1 );
+                    .forGoggles(tooltip, 1);
         }
         return true;
     }

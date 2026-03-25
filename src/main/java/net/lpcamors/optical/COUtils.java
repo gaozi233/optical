@@ -38,11 +38,8 @@ public class COUtils {
             COItems.ROSE_QUARTZ_CATALYST_COIL, COItems.INCOMPLETE_QUARTZ_CATALYST_COIL);
 
     public static Vec3i getColor(DyeColor dyeColor) {
-        int rgb = dyeColor.getTextureDiffuseColor();
-        int r = (rgb >> 16) & 0xFF;
-        int g = (rgb >> 8) & 0xFF;
-        int b = rgb & 0xFF;
-        return new Vec3i(r, g, b);
+        float[] rgb = dyeColor.getTextureDiffuseColors();
+        return new Vec3i((int) (255 * rgb[0]), (int) (255 * rgb[1]), (int) (255 * rgb[2]));
     }
 
     public static Color color(Vec3i v) {
@@ -125,5 +122,13 @@ public class COUtils {
 
     public static Vec3 getPlaneNormal(Direction dir) {
         return COUtils.vecOf(1).subtract(getNormalUnitary(dir));
+    }
+
+    public static Vec3 getMinPos(AABB aabb) {
+        return new Vec3(aabb.minX, aabb.minY, aabb.minZ);
+    }
+
+    public static Vec3 getMaxPos(AABB aabb) {
+        return new Vec3(aabb.maxX, aabb.maxY, aabb.maxZ);
     }
 }

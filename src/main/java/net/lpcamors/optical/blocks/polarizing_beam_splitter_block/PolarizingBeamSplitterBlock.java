@@ -1,6 +1,5 @@
 package net.lpcamors.optical.blocks.polarizing_beam_splitter_block;
 
-import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
 
@@ -20,6 +19,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -30,15 +30,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class PolarizingBeamSplitterBlock extends HorizontalDirectionalBlock
         implements IWrenchable, GenericOpticalSourceBlockEntity.IBeamActivator, IBE<PolarizingBeamSplitterBlockEntity> {
 
-    public static final MapCodec<PolarizingBeamSplitterBlock> CODEC = simpleCodec(PolarizingBeamSplitterBlock::new);
-
     public PolarizingBeamSplitterBlock(Properties p_54120_) {
         super(p_54120_);
-    }
-
-    @Override
-    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-        return CODEC;
     }
 
     @Override
@@ -149,4 +142,8 @@ public class PolarizingBeamSplitterBlock extends HorizontalDirectionalBlock
         return null;
     }
 
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return getBlockEntityType().create(pos, state);
+    }
 }

@@ -12,11 +12,11 @@ public class CODisplayTargets {
     public static void initiate() {
     }
 
-    public static final RegistryEntry<DisplayTarget, HologramSourceDisplayTarget> HOLOGRAM_SOURCE = simple(
+    public static final RegistryEntry<HologramSourceDisplayTarget> HOLOGRAM_SOURCE = simple(
             "hologram_source",
             HologramSourceDisplayTarget::new);
 
-    private static <T extends DisplayTarget> RegistryEntry<DisplayTarget, T> simple(String name, Supplier<T> supplier) {
+    private static <T extends DisplayTarget> RegistryEntry<T> simple(String name, Supplier<T> supplier) {
         return CreateOptical.REGISTRATE.displayTarget(name, supplier).register();
     }
 }

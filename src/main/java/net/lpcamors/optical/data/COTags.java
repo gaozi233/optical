@@ -14,7 +14,7 @@ public class COTags {
         public static final TagKey<Block> IMPENETRABLE = mod("beam/impenetrable");
 
         private static TagKey<Block> mod(String path){
-            return BlockTags.create(ResourceLocation.fromNamespaceAndPath(CreateOptical.ID, path));
+            return BlockTags.create(new ResourceLocation(CreateOptical.ID, path));
         }
     }
 

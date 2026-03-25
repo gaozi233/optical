@@ -3,11 +3,12 @@ package net.lpcamors.optical.renderers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.blockEntity.behaviour.fluid.SmartFluidTankBehaviour;
 
-import net.createmod.catnip.platform.NeoForgeCatnipServices;
+import net.createmod.catnip.platform.ForgeCatnipServices;
 import net.lpcamors.optical.blocks.optical_source.GenericOpticalSourceBlockEntity;
 import net.lpcamors.optical.blocks.thermal_optical_source.ThermalOpticalSourceBlockEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraftforge.fluids.FluidStack;
 
 public class ThermalOpticalSourceRenderer extends OpticalSourceRenderer {
 
@@ -31,7 +32,7 @@ public class ThermalOpticalSourceRenderer extends OpticalSourceRenderer {
             return;
 
         SmartFluidTankBehaviour.TankSegment primaryTank = tank.getPrimaryTank();
-        net.neoforged.neoforge.fluids.FluidStack fluidStack = primaryTank.getRenderedFluid();
+        FluidStack fluidStack = primaryTank.getRenderedFluid();
         float level = primaryTank.getFluidLevel()
                 .getValue(partialTicks);
 
@@ -42,7 +43,8 @@ public class ThermalOpticalSourceRenderer extends OpticalSourceRenderer {
             float yOffset = yMin + (8.97F / 16f) * level;
             ms.pushPose();
             ms.translate(0, yOffset, 0);
-            NeoForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluidStack, min, yMin - yOffset, min, max, yMin,
+
+            ForgeCatnipServices.FLUID_RENDERER.renderFluidBox(fluidStack, min, yMin - yOffset, min, max, yMin,
                     max, buffer, ms, light, false, false);
             ms.popPose();
         }

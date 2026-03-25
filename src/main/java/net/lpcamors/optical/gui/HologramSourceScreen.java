@@ -7,10 +7,10 @@ import com.simibubi.create.foundation.gui.widget.ScrollInput;
 import com.simibubi.create.foundation.gui.widget.SelectionScrollInput;
 
 import net.createmod.catnip.gui.AbstractSimiScreen;
-import net.createmod.catnip.platform.CatnipServices;
 import net.lpcamors.optical.blocks.hologram_source.HologramSourceBlockEntity;
 import net.lpcamors.optical.blocks.hologram_source.HologramSourceBlockEntity.HologramSourceProfile;
 import net.lpcamors.optical.data.COLang;
+import net.lpcamors.optical.network.COPackets;
 import net.lpcamors.optical.network.ConfigureHologramSourcePacket;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
@@ -41,7 +41,7 @@ public class HologramSourceScreen extends AbstractSimiScreen {
         this.angle = profile.fixedAngle;
         this.angleVelocity = profile.angleVelocity;
         this.tag = new CompoundTag();
-        profile.write(this.tag, be.getLevel().registryAccess());
+        profile.write(this.tag);
     }
 
     @Override
@@ -89,8 +89,8 @@ public class HologramSourceScreen extends AbstractSimiScreen {
         tag.putInt("AngleVelocity", this.angleVelocity);
         if (tag.equals(this.tag))
             return;
-        CatnipServices.NETWORK
-                .sendToServer(new ConfigureHologramSourcePacket(be.getBlockPos(), this.modeIndex, this.angle,
+        COPackets.getChannel().sendToServer(
+                new ConfigureHologramSourcePacket(be.getBlockPos(), this.modeIndex, this.angle,
                         this.angleVelocity));
     }
 

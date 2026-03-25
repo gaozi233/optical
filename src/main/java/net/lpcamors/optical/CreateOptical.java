@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import net.createmod.catnip.lang.FontHelper;
 import net.lpcamors.optical.blocks.COBlockEntities;
 import net.lpcamors.optical.blocks.COBlocks;
-import net.lpcamors.optical.blocks.thermal_optical_source.ThermalOpticalSourceBlockEntity;
 import net.lpcamors.optical.config.COConfigs;
 import net.lpcamors.optical.data.CODataGen;
 import net.lpcamors.optical.data.COLang;
@@ -22,19 +21,21 @@ import net.lpcamors.optical.network.COPackets;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModLoadingContext;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
 
 @Mod(CreateOptical.ID)
 public class CreateOptical {
     public static final String ID = "create_optical";
     public static final String VERSION = "0.1";
     public static final Logger LOGGER = LogUtils.getLogger();
-    private static final Function<String, ResourceLocation> LOC_FUNC = s -> ResourceLocation.fromNamespaceAndPath(ID,
+    private static final Function<String, ResourceLocation> LOC_FUNC = s -> new ResourceLocation(ID,
             s);
 
     public static final CreateRegistrate REGISTRATE = CreateRegistrate.create(ID)
@@ -50,9 +51,15 @@ public class CreateOptical {
         return LOC_FUNC.apply(name);
     }
 
-    public CreateOptical(net.neoforged.bus.api.IEventBus modEventBus, ModContainer container) {
+    public CreateOptical() {
+        IEventBus modEventBus = net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus();
+        ModContainer container = ModLoadingContext.get().getActiveContainer();
+        init(modEventBus, container);
+    }
 
+    public void init(IEventBus modEventBus, ModContainer container) {
         REGISTRATE.registerEventListeners(modEventBus);
+        IEventBus forgeEventBus = MinecraftForge.EVENT_BUS;
 
         COBlocks.initiate();
         COItems.initiate();
@@ -62,21 +69,12 @@ public class CreateOptical {
         CORecipeTypes.register(modEventBus);
         COLang.initiate();
 
-        COPackets.register();
+        COPackets.registerPackets();
         COConfigs.register(ModLoadingContext.get(), container);
 
-        modEventBus.addListener(EventPriority.HIGHEST, CODataGen::gatherDataHighPriority);
         modEventBus.addListener(EventPriority.LOWEST, CODataGen::gatherData);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+                () -> () -> CreateOpticalClient.onCtorClient(modEventBus, forgeEventBus));
     }
 
-    @EventBusSubscriber
-    public static class ModBusEvents {
-
-        @net.neoforged.bus.api.SubscribeEvent
-        public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-
-            ThermalOpticalSourceBlockEntity.registerCapabilities(event);
-
-        }
-    }
 }
