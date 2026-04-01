@@ -22,6 +22,7 @@ public class CORenderTypes {
     protected static final RenderStateShard.OverlayStateShard NO_OVERLAY = new RenderStateShard.OverlayStateShard(
             false);
     protected static final RenderStateShard.OverlayStateShard OVERLAY = new RenderStateShard.OverlayStateShard(true);
+    @SuppressWarnings("deprecation")
     protected static final RenderStateShard.TextureStateShard BLOCK_SHEET = new RenderStateShard.TextureStateShard(
             TextureAtlas.LOCATION_BLOCKS, false, false);
     protected static final RenderStateShard.CullStateShard CULL = new RenderStateShard.CullStateShard(true);
@@ -65,6 +66,7 @@ public class CORenderTypes {
     protected static final RenderStateShard.ShaderStateShard RENDERTYPE_TRANSLUCENT_SHADER = new RenderStateShard.ShaderStateShard(
             GameRenderer::getRendertypeTranslucentShader);
 
+    @SuppressWarnings("deprecation")
     protected static final RenderStateShard.TextureStateShard BLOCK_SHEET_MIPPED = new RenderStateShard.TextureStateShard(
             TextureAtlas.LOCATION_BLOCKS, false, true);
 

@@ -308,6 +308,7 @@ public class HologramSourceRenderer extends SafeBlockEntityRenderer<HologramSour
         }
     }
 
+    @SuppressWarnings("deprecation")
     void renderModelLists(BeamHelper.BeamProperties beamProperties, ItemRenderer renderer, BakedModel model,
             ItemStack stack, int light, int overlay, PoseStack pose, VertexConsumer vc,
             float alpha) {

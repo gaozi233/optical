@@ -109,6 +109,8 @@ public class BeamHelper {
         }
 
         public static Optional<BeamProperties> read(CompoundTag compoundTag) {
+            if (compoundTag == null)
+                return Optional.empty();
             try {
                 if (!compoundTag.contains("BeamProperties"))
                     return Optional.empty();

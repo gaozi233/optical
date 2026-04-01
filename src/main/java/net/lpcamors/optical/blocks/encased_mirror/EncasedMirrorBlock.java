@@ -104,6 +104,7 @@ public class EncasedMirrorBlock extends DirectionalKineticBlock
         return COBlockEntities.ENCASED_MIRROR.get();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
             BlockHitResult hitResult) {

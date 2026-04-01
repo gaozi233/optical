@@ -116,6 +116,7 @@ public class OpticalSensorBlock extends Block implements IWrenchable, IBeamActiv
         return IWrenchable.super.onWrenched(state, context);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public InteractionResult use(@NotNull BlockState state, @NotNull Level level,
             @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand,

@@ -6,7 +6,6 @@ import com.simibubi.create.compat.jei.category.sequencedAssembly.SequencedAssemb
 import com.simibubi.create.content.processing.sequenced.SequencedRecipe;
 
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
-import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.lpcamors.optical.recipes.AnimatedFocus;
@@ -23,7 +22,7 @@ public class FocusingAssemblySubcategory extends SequencedAssemblySubCategory {
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, SequencedRecipe<?> recipe, IFocusGroup focuses, int x) {
         if (recipe.getRecipe().getIngredients().size() > 1) {
-            IRecipeSlotBuilder slot = builder
+            builder
                     .addSlot(RecipeIngredientRole.CATALYST, x + 4, 15)
                     .setBackground(CreateRecipeCategory.getRenderedSlot(), -1, -1)
                     .addIngredients(recipe.getRecipe().getIngredients().get(1));

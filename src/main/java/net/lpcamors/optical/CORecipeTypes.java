@@ -1,5 +1,6 @@
 package net.lpcamors.optical;
 
+
 import java.util.function.Supplier;
 
 import com.simibubi.create.content.processing.recipe.ProcessingRecipeSerializer;

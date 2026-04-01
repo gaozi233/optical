@@ -37,8 +37,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
 
 public class BeamFocuserBlockEntity extends KineticBlockEntity {
 
@@ -150,13 +148,13 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
             return ProcessingResult.HOLD;
         } else if (!this.canFocus()) {
             return ProcessingResult.PASS;
-        } else if (!BeamFocuserHelper.canBeProcessed(this.level, this.getWrapperFor(transported.stack),
+        } else if (!BeamFocuserHelper.canBeProcessed(this.level, transported.stack, this.filtering.getFilter(),
                 this.optionalBeamProperties.get().getType())) {
             return ProcessingResult.PASS;
         } else {
             BeamHelper.BeamType beamType = this.optionalBeamProperties.get().beamType();
             Optional<FocusingRecipe> recipe = BeamFocuserHelper.getFocusingRecipe(level,
-                    this.getWrapperFor(transported.stack), beamType);
+                    transported.stack, this.filtering.getFilter(), beamType);
             if (recipe.isEmpty())
                 return PASS;
 
@@ -188,23 +186,19 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
         }
     }
 
-    private RecipeWrapper getWrapperFor(ItemStack stack) {
-        ItemStackHandler inv = new ItemStackHandler(2);
-        inv.setStackInSlot(0, stack);
-        inv.setStackInSlot(1, this.filtering.getFilter());
-        return new RecipeWrapper(inv);
-    }
-
     protected BeltProcessingBehaviour.ProcessingResult onItemReceived(TransportedItemStack transported,
             TransportedItemStackHandlerBehaviour handler) {
-        // if (handler.blockEntity.isVirtual()) {
-        // return ProcessingResult.PASS;
-        /* } else */ if (!this.canFocus()) {
+        if (handler.blockEntity.isVirtual()) {
             return ProcessingResult.PASS;
-        } else {
-            return BeamFocuserHelper.canBeProcessed(level,
-                    this.getWrapperFor(transported.stack), this.optionalBeamProperties.get().beamType()) ? HOLD : PASS;
+        } else if (!this.canFocus()) {
+            return ProcessingResult.PASS;
+        } else if (transported.stack.isEmpty()) {
+            return PASS;
+        } else if (!BeamFocuserHelper.canBeProcessed(level, transported.stack, this.filtering.getFilter(),
+                this.optionalBeamProperties.get().beamType())) {
+            return PASS;
         }
+        return HOLD;
     }
 
     @Override

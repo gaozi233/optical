@@ -291,6 +291,8 @@ public abstract class GenericOpticalSourceBlockEntity extends KineticBlockEntity
             tag.put("BeamSection", compound);
 
         }
+
+
         /*
          * public static StreamCodec<ByteBuf, BeamSection> CODEC = new
          * StreamCodec<ByteBuf, BeamSection>() {

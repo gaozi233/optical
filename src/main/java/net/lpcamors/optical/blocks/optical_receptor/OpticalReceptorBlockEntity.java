@@ -12,6 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.simibubi.create.content.kinetics.base.GeneratingKineticBlockEntity;
+import com.simibubi.create.content.kinetics.waterwheel.WaterWheelBlockEntity;
 
 import net.createmod.catnip.lang.Lang;
 import net.lpcamors.optical.CreateOptical;
@@ -181,7 +182,7 @@ public class OpticalReceptorBlockEntity extends GeneratingKineticBlockEntity {
                     return be.initialBeamProperties != null ? be.initialBeamProperties.getEffectiveSpeed()
                             : 0F;
                 },
-                be -> null),
+                be -> 8f),
 
         CAPACITY("capacity",
                 be -> {
@@ -288,6 +289,7 @@ public class OpticalReceptorBlockEntity extends GeneratingKineticBlockEntity {
                 }
             }
         }
+
     }
 
     @Override

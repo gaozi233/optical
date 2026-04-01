@@ -10,28 +10,34 @@ import net.lpcamors.optical.CORecipeTypes;
 import net.lpcamors.optical.blocks.optical_source.BeamHelper;
 import net.lpcamors.optical.recipes.FocusingRecipe;
 import net.lpcamors.optical.recipes.FocusingRecipeParams;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.wrapper.RecipeWrapper;
 
 public class BeamFocuserHelper {
 
-    public static boolean canBeProcessed(Level world, RecipeWrapper w, BeamHelper.BeamType beamType) {
-        return getFocusingRecipe(world, w, beamType).isPresent();
+    private static final RecipeWrapper WRAPPER = new RecipeWrapper(new ItemStackHandler(2));
+
+    public static boolean canBeProcessed(Level world, ItemStack s1, ItemStack s2, BeamHelper.BeamType beamType) {
+        return getFocusingRecipe(world, s1, s2, beamType).isPresent();
     }
 
-    public static Optional<FocusingRecipe> getFocusingRecipe(Level world, RecipeWrapper w,
+    public static Optional<FocusingRecipe> getFocusingRecipe(Level world, ItemStack stack1, ItemStack stack2,
             @Nullable BeamHelper.BeamType beamType) {
 
-        FocusingRecipeParams.BeamTypeConditionProfile.initializeRecipes(world);
+        WRAPPER.setItem(0, stack1);
+        if (!stack2.isEmpty())
+            WRAPPER.setItem(1, stack2);
 
         Optional<FocusingRecipe> focusingRecipe = SequencedAssemblyRecipe
-                .getRecipe(world, w.getItem(0), CORecipeTypes.FOCUSING.getType(), FocusingRecipe.class);
+                .getRecipe(world, WRAPPER, CORecipeTypes.FOCUSING.getType(), FocusingRecipe.class);
         if (focusingRecipe.isEmpty()) {
             focusingRecipe = world.getRecipeManager()
-                    .getRecipeFor(CORecipeTypes.FOCUSING.getType(), w, world);
+                    .getRecipeFor(CORecipeTypes.FOCUSING.getType(), WRAPPER, world);
         }
         if (focusingRecipe.isEmpty()) {
-            focusingRecipe = FocusingRecipeParams.BeamTypeConditionProfile.getRecipeFor(world, w, beamType);
+            focusingRecipe = FocusingRecipeParams.BeamTypeConditionProfile.getRecipeFor(world, WRAPPER, beamType);
         }
         if (focusingRecipe.isPresent()) {
             if (focusingRecipe.get().beamTypeCondition.test(beamType)) {
