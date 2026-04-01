@@ -244,7 +244,6 @@ public class FocusingRecipeParams extends ProcessingRecipeParams {
             return recipes;
         }
 
-        private static final List<RecipeHolder<FocusingRecipe>> RECIPES = new ArrayList<>();
 
         BeamTypeConditionProfile(RecipeType<?> recipeType,
                 Function<RegistryAccess, Function<RecipeHolder<?>, RecipeHolder<FocusingRecipe>>> converter) {
@@ -284,42 +283,22 @@ public class FocusingRecipeParams extends ProcessingRecipeParams {
                     ^ r.value().getIngredients().get(1).getItems()[0].getItem() instanceof DyeItem);
         }
 
-        public static void initializeRecipes(Level level) {
-            if (!RECIPES.isEmpty())
-                RECIPES.clear();
-            Arrays.stream(BeamTypeConditionProfile.values()).forEach(b -> {
-                level.getRecipeManager().getRecipes().forEach(holder -> {
-                    if (b.recipePredicate != null) {
-                        if (b.recipePredicate.test(holder)) {
-                            RECIPES.add(b.getConverter(level.registryAccess()).apply(holder));
-                        }
-                    }
-                    if (b.recipes != null) {
-                        RECIPES.addAll(b.recipes);
-                    }
-                });
-            });
-        }
-
-        public Optional<RecipeHolder<FocusingRecipe>> getRecipe(Level level, RecipeWrapper recipeWrapper,
-                BeamHelper.BeamType b) {
-            List<RecipeHolder<FocusingRecipe>> focusingRecipes = RECIPES.stream()
-                    .filter(r -> r.value().matches(recipeWrapper, level) && r.value().beamTypeCondition.test(b))
-                    .toList();
-            return Optional.ofNullable(focusingRecipes.isEmpty() ? null : focusingRecipes.get(0));
-        }
-
         public static boolean canBeProcessed(Level level, RecipeWrapper recipeWrapper, BeamHelper.BeamType b) {
             return getRecipeFor(level, recipeWrapper, b).isPresent();
         }
 
         public static Optional<RecipeHolder<FocusingRecipe>> getRecipeFor(Level level, RecipeWrapper recipeWrapper,
                 BeamHelper.BeamType beamType) {
-            List<RecipeHolder<FocusingRecipe>> focusingRecipes = Arrays.stream(BeamTypeConditionProfile.values())
-                    .map(b -> b.getRecipe(level, recipeWrapper, beamType)).filter(Optional::isPresent)
-                    .map(Optional::get).toList();
-            return Optional.ofNullable(focusingRecipes.isEmpty() ? null : focusingRecipes.get(0));
+            List<RecipeHolder<FocusingRecipe>> list = new ArrayList<>();
+            for (BeamTypeConditionProfile profile : BeamTypeConditionProfile.values()) {
+                if (profile.recipes != null) {
+                    list.addAll(profile.recipes.stream()
+                            .filter(r -> r.value().matches(recipeWrapper, level) && r.value().beamTypeCondition.test(beamType))
+                            .toList());
+                }
+            }
 
+            return Optional.ofNullable(list.isEmpty() ? null : list.get(0));
         }
     }
 

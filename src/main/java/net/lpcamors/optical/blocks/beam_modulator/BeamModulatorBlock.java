@@ -62,7 +62,7 @@ public class BeamModulatorBlock extends HorizontalDirectionalBlock implements IW
                     return new BeamProperties.Builder(prop).addSignal(be.getSignal(prop)).build();
                 }
             }
-            return null;
+            return prop;
         }
     }
 

@@ -142,7 +142,6 @@ public class HologramSourceBlockEntity extends SmartBlockEntity
 
         BlockPos pos = this.getBlockPos();
         HologramSourceBlockEntity be = this;
-        Axis axis = HologramSourceBlock.getConnectionAxis(be.getBlockState());
 
         while (true) {
             pos = pos.relative(dir);

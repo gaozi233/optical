@@ -196,16 +196,16 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
         inv.setStackInSlot(1, this.filtering.getFilter());
         return new RecipeWrapper(inv);
     }
+
     protected BeltProcessingBehaviour.ProcessingResult onItemReceived(TransportedItemStack transported,
             TransportedItemStackHandlerBehaviour handler) {
-        //if (handler.blockEntity.isVirtual()) {
-        //    return ProcessingResult.PASS;
-        /*} else*/ if (!this.canFocus()) {
+        if (!this.canFocus()) {
             return ProcessingResult.PASS;
-        } else {
-            return BeamFocuserHelper.canBeProcessed(level,
-                    this.getWrapperFor(transported.stack), this.optionalBeamProperties.get().beamType()) ? HOLD : PASS;
+        } else if (!BeamFocuserHelper.canBeProcessed(level, this.getWrapperFor(transported.stack),
+                this.optionalBeamProperties.get().beamType())) {
+            return ProcessingResult.PASS;
         }
+        return ProcessingResult.HOLD;
     }
 
     @Override

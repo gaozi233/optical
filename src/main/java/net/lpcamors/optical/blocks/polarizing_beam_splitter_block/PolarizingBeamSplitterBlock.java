@@ -14,7 +14,6 @@ import net.lpcamors.optical.blocks.optical_source.BeamHelper.BeamProperties;
 import net.lpcamors.optical.blocks.optical_source.GenericOpticalSourceBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -57,40 +56,6 @@ public class PolarizingBeamSplitterBlock extends HorizontalDirectionalBlock
         return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getClockWise());
     }
 
-    /*
-     * @Override
-     * public void receive(IBeamSource iBeamSource, BlockState state, BlockPos
-     * lastPos, BeamHelper.BeamProperties beamProperties, int lastIndex) {
-     * Direction direction = beamProperties.direction;
-     * if(direction.getAxis().isVertical()) return;
-     * float intensity =
-     * beamProperties.beamPolarization.getRemainingIntensity(beamProperties.
-     * intensity, BeamHelper.BeamPolarization.VERTICAL);
-     * if(intensity > 0){
-     * BeamHelper.BeamProperties beamProperties1 = new
-     * BeamHelper.BeamProperties(intensity, BeamHelper.BeamPolarization.VERTICAL,
-     * beamProperties.color, direction, beamProperties.spin,
-     * beamProperties.beamType);
-     * //IBeamSource.propagateLinearBeamVar(iBeamSource, lastPos, beamProperties1,
-     * lastIndex);
-     * }
-     * intensity =
-     * beamProperties.beamPolarization.getRemainingIntensity(beamProperties.
-     * intensity, BeamHelper.BeamPolarization.HORIZONTAL);
-     * if(intensity > 0){
-     * direction = direction.getAxis().equals(state.getValue(FACING).getAxis()) ?
-     * direction.getClockWise() : direction.getCounterClockWise();
-     * BeamHelper.BeamProperties beamProperties1 = new
-     * BeamHelper.BeamProperties(intensity, BeamHelper.BeamPolarization.HORIZONTAL,
-     * beamProperties.color, direction, beamProperties.spin,
-     * beamProperties.beamType);
-     * //IBeamSource.propagateLinearBeamVar(iBeamSource, lastPos, beamProperties1,
-     * lastIndex);
-     * }
-     * 
-     * 
-     * }
-     */
     @Override
     public Class<PolarizingBeamSplitterBlockEntity> getBlockEntityClass() {
         return PolarizingBeamSplitterBlockEntity.class;
@@ -108,6 +73,9 @@ public class PolarizingBeamSplitterBlock extends HorizontalDirectionalBlock
                 BeamHelper.BeamPolarization.VERTICAL);
         float perpIntesity = prop.polarization().getRemainingIntensity(prop.intensity(),
                 BeamHelper.BeamPolarization.HORIZONTAL);
+
+        if (prop.direction().getAxis().isVertical())
+            return null;
 
         if (perpIntesity > 0) {
             Direction dir = prop.direction().getAxis().equals(state.getValue(FACING).getAxis())
@@ -129,7 +97,7 @@ public class PolarizingBeamSplitterBlock extends HorizontalDirectionalBlock
 
     @Override
     public boolean canReceive(Level level, BlockState state, BlockPos pos, BeamProperties prop) {
-        return !prop.direction().getAxis().equals(Axis.Y);
+        return !prop.direction().getAxis().isVertical();
     }
 
     @Override

@@ -4,12 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.simibubi.create.content.trains.display.FlapDisplayBlockEntity;
 import com.simibubi.create.foundation.networking.BlockEntityDataPacket;
 
 import net.createmod.catnip.codecs.stream.CatnipStreamCodecBuilders;
-import net.lpcamors.optical.blocks.optical_source.BeamHelper.BeamProperties;
 import net.lpcamors.optical.blocks.optical_source.BeamHelper;
+import net.lpcamors.optical.blocks.optical_source.BeamHelper.BeamProperties;
 import net.lpcamors.optical.blocks.optical_source.GenericOpticalSourceBlockEntity;
 import net.lpcamors.optical.blocks.optical_source.GenericOpticalSourceBlockEntity.BeamSection;
 import net.minecraft.core.BlockPos;

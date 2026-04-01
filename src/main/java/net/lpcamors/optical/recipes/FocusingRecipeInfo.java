@@ -27,11 +27,13 @@ public class FocusingRecipeInfo implements IRecipeTypeInfo {
         return this.id;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends RecipeSerializer<?>> T getSerializer() {
         return (T) this.serializer;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <I extends RecipeInput, R extends Recipe<I>> RecipeType<R> getType() {
         return (RecipeType<R>)this.type;

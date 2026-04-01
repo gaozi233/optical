@@ -23,8 +23,6 @@ public class BeamFocuserHelper {
     public static Optional<RecipeHolder<FocusingRecipe>> getFocusingRecipe(Level world, RecipeWrapper w,
             @Nullable BeamHelper.BeamType beamType) {
 
-        FocusingRecipeParams.BeamTypeConditionProfile.initializeRecipes(world);
-
         Optional<RecipeHolder<FocusingRecipe>> focusingRecipe = SequencedAssemblyRecipe
                 .getRecipe(world, w.getItem(0), CORecipeTypes.FOCUSING.getType(), FocusingRecipe.class);
         if (focusingRecipe.isEmpty()) {

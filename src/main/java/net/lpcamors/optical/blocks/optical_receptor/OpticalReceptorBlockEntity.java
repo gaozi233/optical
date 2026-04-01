@@ -183,7 +183,7 @@ public class OpticalReceptorBlockEntity extends GeneratingKineticBlockEntity {
                     return be.initialBeamProperties != null ? be.initialBeamProperties.getEffectiveSpeed()
                             : 0F;
                 },
-                be -> null),
+                be -> 8f),
 
         CAPACITY("capacity",
                 be -> {
