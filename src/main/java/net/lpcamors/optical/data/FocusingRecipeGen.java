@@ -55,6 +55,6 @@ public class FocusingRecipeGen extends ProcessingRecipeGen {
 
     @Override
     protected void buildRecipes(Consumer<FinishedRecipe> writer) {
-
+        super.buildRecipes(writer);
     }
 }

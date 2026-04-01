@@ -1,1 +1,3 @@
-// 1.20.1	2026-03-24T19:52:57.19521469	create_optical's processing recipes: focusing
+// 1.20.1	2026-04-01T00:12:48.275808813	create_optical's processing recipes: focusing
+c3cfc086e5ac43f49245d6b0f7ec5c899b297413 data/create_optical/recipes/focusing/focusing_mirror.json
+f5189d02414751e726273bb565db8dcbad141354 data/create_optical/recipes/focusing/focusing_polarizing_filter.json

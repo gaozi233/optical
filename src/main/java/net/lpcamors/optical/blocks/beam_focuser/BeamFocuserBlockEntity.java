@@ -188,12 +188,8 @@ public class BeamFocuserBlockEntity extends KineticBlockEntity {
 
     protected BeltProcessingBehaviour.ProcessingResult onItemReceived(TransportedItemStack transported,
             TransportedItemStackHandlerBehaviour handler) {
-        if (handler.blockEntity.isVirtual()) {
+        if (!this.canFocus()) {
             return ProcessingResult.PASS;
-        } else if (!this.canFocus()) {
-            return ProcessingResult.PASS;
-        } else if (transported.stack.isEmpty()) {
-            return PASS;
         } else if (!BeamFocuserHelper.canBeProcessed(level, transported.stack, this.filtering.getFilter(),
                 this.optionalBeamProperties.get().beamType())) {
             return PASS;
