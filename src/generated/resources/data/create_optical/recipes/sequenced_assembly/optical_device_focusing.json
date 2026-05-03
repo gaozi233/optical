@@ -1,7 +1,7 @@
 {
   "type": "create:sequenced_assembly",
   "ingredient": {
-    "item": "minecraft:amethyst_shard"
+    "item": "create:iron_sheet"
   },
   "loops": 1,
   "results": [
@@ -18,7 +18,7 @@
           "item": "create_optical:incomplete_optical_device"
         },
         {
-          "item": "create:iron_sheet"
+          "item": "minecraft:amethyst_shard"
         }
       ],
       "results": [

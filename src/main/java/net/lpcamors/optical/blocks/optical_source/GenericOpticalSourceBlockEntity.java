@@ -116,6 +116,7 @@ public abstract class GenericOpticalSourceBlockEntity extends KineticBlockEntity
     final void onRemove() {
         this.sections.forEach(section -> {
             BlockPos pos = new BlockPos(section.toPos());
+            if(this.activators.get(pos) == null) return;
             BlockState state = this.level.getBlockState(pos);
             if (state.getBlock() instanceof IBeamActivator iActivator) {
                 iActivator.onRemoveBeam(level, state, pos, this.activators.get(pos));

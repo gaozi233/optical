@@ -18,11 +18,14 @@ import net.lpcamors.optical.data.CODataGen;
 import net.lpcamors.optical.data.COLang;
 import net.lpcamors.optical.items.COItems;
 import net.lpcamors.optical.network.COPackets;
+import net.lpcamors.optical.recipes.FocusingRecipeParams.BeamTypeConditionProfile;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
@@ -72,9 +75,23 @@ public class CreateOptical {
         COPackets.registerPackets();
         COConfigs.register(ModLoadingContext.get(), container);
 
+        forgeEventBus.addListener(CreateOptical::onServerStarting);
+        forgeEventBus.addListener(CreateOptical::onDatapackSync);
         modEventBus.addListener(EventPriority.LOWEST, CODataGen::gatherData);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
                 () -> () -> CreateOpticalClient.onCtorClient(modEventBus, forgeEventBus));
+    }
+
+    private static void onServerStarting(ServerStartingEvent event) {
+        var server = event.getServer();
+        BeamTypeConditionProfile.rebuild(server);
+    }
+
+    private static void onDatapackSync(OnDatapackSyncEvent event) {
+        if (event.getPlayer() != null)
+            return;
+        var server = event.getPlayerList().getServer();
+        BeamTypeConditionProfile.rebuild(server);
     }
 
 }

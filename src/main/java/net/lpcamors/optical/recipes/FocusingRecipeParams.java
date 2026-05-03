@@ -3,7 +3,9 @@ package net.lpcamors.optical.recipes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -20,6 +22,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.BannerPatternItem;
 import net.minecraft.world.item.DyeItem;
@@ -224,15 +227,26 @@ public class FocusingRecipeParams extends ProcessingRecipeParams {
         SANDPAPER((RecipeType<?>) AllRecipeTypes.SANDPAPER_POLISHING.getType(), l -> sandpaper(l)),
         SHERDS(copy(Ingredient.of(Items.BRICK), item -> new ItemStack(item).is(ItemTags.DECORATED_POT_SHERDS))),
         PATTERN(copy(Ingredient.of(Items.PAPER), item -> item instanceof BannerPatternItem)),
-        DISC(copy(Ingredient.of(ItemTags.MUSIC_DISCS), item -> new ItemStack(item).is(ItemTags.MUSIC_DISCS))),
-        ;
+        DISC(copy(Ingredient.of(ItemTags.MUSIC_DISCS), item -> new ItemStack(item).is(ItemTags.MUSIC_DISCS))),;
 
         private final Predicate<Recipe<?>> recipePredicate;
         private final Function<RegistryAccess, Function<Recipe<?>, FocusingRecipe>> converter;
-        private final Collection<FocusingRecipe> recipes;
+        private final Function<MinecraftServer, Collection<FocusingRecipe>> recipesGenerator;
+
+        private static final Map<BeamTypeConditionProfile, Collection<FocusingRecipe>> CACHE = new EnumMap<>(
+                BeamTypeConditionProfile.class);
+
+        public static void rebuild(MinecraftServer server) {
+            CreateOptical.LOGGER.info("Reloading focusing recipes");
+            CACHE.clear();
+
+            for (BeamTypeConditionProfile profile : BeamTypeConditionProfile.values()) {
+                CACHE.put(profile, profile.recipesGenerator.apply(server));
+            }
+        }
 
         public Collection<FocusingRecipe> getRecipes() {
-            return recipes;
+            return CACHE.getOrDefault(this, List.of());
         }
 
         BeamTypeConditionProfile(RecipeType<?> recipeType,
@@ -243,14 +257,23 @@ public class FocusingRecipeParams extends ProcessingRecipeParams {
         BeamTypeConditionProfile(Collection<FocusingRecipe> recipes) {
             this.recipePredicate = null;
             this.converter = null;
-            this.recipes = recipes;
+            this.recipesGenerator = (l) -> recipes;
         }
 
         BeamTypeConditionProfile(Predicate<Recipe<?>> recipePredicate,
                 Function<RegistryAccess, Function<Recipe<?>, FocusingRecipe>> converter) {
             this.recipePredicate = recipePredicate;
             this.converter = converter;
-            this.recipes = null;
+            this.recipesGenerator = server -> {
+                ArrayList<FocusingRecipe> recipes = new ArrayList<>();
+                server.getRecipeManager().getRecipes().forEach(recipe -> {
+                    if (this.recipePredicate.test(recipe)) {
+                        recipes.add(this.getConverter(server.registryAccess()).apply(recipe));
+                    }
+                });
+                return recipes;
+            };
+
         }
 
         public Function<Recipe<?>, FocusingRecipe> getConverter(RegistryAccess registryAccess) {
@@ -277,13 +300,10 @@ public class FocusingRecipeParams extends ProcessingRecipeParams {
                 BeamHelper.BeamType beamType) {
             List<FocusingRecipe> list = new ArrayList<>();
             for (BeamTypeConditionProfile profile : BeamTypeConditionProfile.values()) {
-                if (profile.recipes != null) {
-                    list.addAll(profile.recipes.stream()
-                            .filter(r -> r.matches(recipeWrapper, level) && r.beamTypeCondition.test(beamType))
-                            .toList());
-                }
+                list.addAll(profile.getRecipes().stream()
+                        .filter(r -> r.matches(recipeWrapper, level) && r.beamTypeCondition.test(beamType))
+                        .toList());
             }
-
             return Optional.ofNullable(list.isEmpty() ? null : list.get(0));
 
         }

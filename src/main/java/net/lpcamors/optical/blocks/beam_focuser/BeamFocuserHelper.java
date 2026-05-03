@@ -27,8 +27,7 @@ public class BeamFocuserHelper {
             @Nullable BeamHelper.BeamType beamType) {
 
         WRAPPER.setItem(0, stack1);
-        if (!stack2.isEmpty())
-            WRAPPER.setItem(1, stack2);
+        WRAPPER.setItem(1, stack2);
 
         Optional<FocusingRecipe> focusingRecipe = SequencedAssemblyRecipe
                 .getRecipe(world, WRAPPER, CORecipeTypes.FOCUSING.getType(), FocusingRecipe.class);

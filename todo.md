@@ -15,3 +15,14 @@
 - [x] Fix some beam render bugs
 - [x] Revisit old ponder and add for new blocks
 - [x] Check old bugs and issues
+
+- Version 0.4.1
+    - [x] Fix TPS glitch
+
+- Version 0.4.2
+    - [x] Switch the starting item on the optical device recipe (focusing one)
+    - [x] Fix the double ingredient glitch of the focusing recipe
+    - [x] Fix the access to null BeamProperties fields of BeamActivators
+    - [x] Fix the Partial Models registry
+    - [x] Add the dirty BeamProperties
+

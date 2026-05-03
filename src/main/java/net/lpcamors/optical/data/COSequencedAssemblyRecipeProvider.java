@@ -74,11 +74,11 @@ public class COSequencedAssemblyRecipeProvider extends SequencedAssemblyRecipeGe
                     .addStep(FillingRecipe::new, rb -> rb.require(Fluids.WATER, 500))
                     .addStep(PressingRecipe::new, rb -> rb)),
 
-            OPTICAL_DEVICE_FOCUSING = createSequenced("optical_device_focusing", b -> b.require(Items.AMETHYST_SHARD)
+            OPTICAL_DEVICE_FOCUSING = createSequenced("optical_device_focusing", b -> b.require(AllItems.IRON_SHEET)
                     .transitionTo(COItems.INCOMPLETE_OPTICAL_DEVICE)
                     .addOutput(COItems.OPTICAL_DEVICE, 100)
                     .loops(1)
-                    .addStep(DeployerApplicationRecipe::new, rb -> rb.require(AllItems.IRON_SHEET))
+                    .addStep(DeployerApplicationRecipe::new, rb -> rb.require(Items.AMETHYST_SHARD))
                     .addStep(DeployerApplicationRecipe::new, rb -> rb.require(Items.GLASS_PANE))
                     .addStep(FACTORY.apply(BeamTypeCondition.NONE), a -> a)),
 

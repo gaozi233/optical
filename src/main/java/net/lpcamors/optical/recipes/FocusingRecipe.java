@@ -117,9 +117,7 @@ public class FocusingRecipe extends ProcessingRecipe<RecipeWrapper> implements I
         if (p_44002_.isEmpty())
             return false;
         boolean f = this.getIngredient().test(p_44002_.getItem(0));
-        if (!p_44002_.getItem(1).isEmpty()) {
-            f &= this.getSecondIngredient().test(p_44002_.getItem(1));
-        }
+        f &= this.getSecondIngredient().test(p_44002_.getItem(1));
         return f;
     }
 

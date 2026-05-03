@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
@@ -39,14 +40,14 @@ public class BeamCondenserBlockEntity extends GenericOpticalSourceBlockEntity {
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
     }
 
-    public void removeBeam(BeamProperties prop) {
+    public void removeBeam(@Nonnull BeamProperties prop) {
         if (beams.get(prop.direction()).isPresent()) {
             beams.put(prop.direction(), Optional.empty());
         }
         this.update();
     }
 
-    public void receiveBeam(BeamProperties prop, boolean force) {
+    public void receiveBeam(@Nonnull BeamProperties prop, boolean force) {
         if (beams.get(prop.direction()).isEmpty() || force) {
             beams.put(prop.direction(), Optional.of(prop));
         }
@@ -75,7 +76,7 @@ public class BeamCondenserBlockEntity extends GenericOpticalSourceBlockEntity {
         });
 
         if (!prop.isEmpty()) {
-            this.beamProperties = new BeamProperties.Builder(blockFacing, prop).build();
+            this.beamProperties = new BeamProperties.Builder(blockFacing, prop).isDirty(true).build();
         } else {
             this.beamProperties = null;
         }
