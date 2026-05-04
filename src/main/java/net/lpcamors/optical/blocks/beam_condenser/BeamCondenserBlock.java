@@ -108,7 +108,7 @@ public class BeamCondenserBlock extends HorizontalDirectionalBlock
 
     @Override
     public boolean canReceive(Level level, BlockState state, BlockPos pos, BeamProperties prop) {
-        return !state.getValue(FACING).equals(prop.direction().getOpposite());
+        return !state.getValue(FACING).equals(prop.direction().getOpposite()) && !prop.isDirty();
     }
 
     @Override

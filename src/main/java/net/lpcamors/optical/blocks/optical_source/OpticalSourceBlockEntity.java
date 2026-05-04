@@ -46,7 +46,7 @@ public class OpticalSourceBlockEntity extends GenericOpticalSourceBlockEntity {
                 BeamHelper.BeamType.getTypeBySpeed(this.speed),
                 this.polarization.get(),
                 COUtils.getColor(DyeColor.GRAY), List.of(),
-                BeamHelper.spinBySpeed(this.getSpeed()), false, false);
+                BeamHelper.spinBySpeed(this.getSpeed()), false, false, false);
     }
 
     public ScrollOptionBehaviour<BeamHelper.BeamPolarization> getPolarization() {

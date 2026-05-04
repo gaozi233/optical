@@ -1,4 +1,4 @@
-// 1.21.1	2026-02-08T16:33:32.235849288	create_optical's sequenced assembly recipes
+// 1.21.1	2026-05-04T00:10:52.770040184	create_optical's sequenced assembly recipes
 b9de972969d60b421bb06bf60689f2235fd062b7 data/create_optical/advancement/recipes/misc/absorption_polarizing_filter.json
 48fb3e6b855f7a28b31724f2d638c92f7350c247 data/create_optical/advancement/recipes/misc/beam_condenser.json
 9f6573e6b21b0d2af95ea393bc8f54915fc1cd57 data/create_optical/advancement/recipes/misc/beam_focuser.json
@@ -28,7 +28,7 @@ d84308e86d10db052208850ec0aad2927f4b404d data/create_optical/recipe/optical_sour
 564bb6e064f1ff2bc8dd4efc1e1d979ab23b7504 data/create_optical/recipe/sequenced_assembly/golden_coil.json
 4396b45785fa19a76d169f5c714a05eb732bee34 data/create_optical/recipe/sequenced_assembly/mirror_item.json
 02b135fe112c0df10137fa441dedfc2e785b7df0 data/create_optical/recipe/sequenced_assembly/optical_device.json
-e141122af6c3ebe973c98249bdcb413fd9d78b6e data/create_optical/recipe/sequenced_assembly/optical_device_focusing.json
+24080a6a5d38d6fa7cebf04874436e59fa966195 data/create_optical/recipe/sequenced_assembly/optical_device_focusing.json
 feabe17efbe6dcd6fd2570e86ce9b594ffe74394 data/create_optical/recipe/sequenced_assembly/polarizing_filter.json
 45827bb91426137e303138ae1dbcb7804c29f08e data/create_optical/recipe/sequenced_assembly/rose_quartz_catalyst_coil.json
 ecaccb52687e2b926f08ececb1524bf60de6c1a2 data/create_optical/recipe/sequenced_assembly/zinc_coil.json

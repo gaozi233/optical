@@ -3,7 +3,9 @@ package net.lpcamors.optical.recipes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -24,6 +26,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.BannerPatternItem;
 import net.minecraft.world.item.DyeItem;
@@ -204,7 +207,7 @@ public class FocusingRecipeParams extends ProcessingRecipeParams {
         };
     }
 
-    public static Collection<? extends RecipeHolder<FocusingRecipe>> copy(Ingredient ing, Predicate<Item> predicate) {
+    public static Collection<RecipeHolder<FocusingRecipe>> copy(Ingredient ing, Predicate<Item> predicate) {
         ArrayList<RecipeHolder<FocusingRecipe>> list = new ArrayList<>();
         BuiltInRegistries.ITEM.forEach(item -> {
             if (predicate.test(item)) {
@@ -238,29 +241,48 @@ public class FocusingRecipeParams extends ProcessingRecipeParams {
 
         private final Predicate<RecipeHolder<?>> recipePredicate;
         private final Function<RegistryAccess, Function<RecipeHolder<?>, RecipeHolder<FocusingRecipe>>> converter;
-        private final Collection<? extends RecipeHolder<FocusingRecipe>> recipes;
+        private final Function<MinecraftServer, Collection<RecipeHolder<FocusingRecipe>>> recipesGenerator;
 
-        public Collection<? extends RecipeHolder<FocusingRecipe>> getRecipes() {
-            return recipes;
+        private static final Map<BeamTypeConditionProfile, Collection<RecipeHolder<FocusingRecipe>>> CACHE = new EnumMap<>(
+                BeamTypeConditionProfile.class);
+
+        public static void rebuild(MinecraftServer server) {
+            CreateOptical.LOGGER.info("Reloading focusing recipes");
+            CACHE.clear();
+
+            for (BeamTypeConditionProfile profile : BeamTypeConditionProfile.values()) {
+                CACHE.put(profile, profile.recipesGenerator.apply(server));
+            }
         }
 
+        public Collection<? extends RecipeHolder<FocusingRecipe>> getRecipes() {
+            return CACHE.getOrDefault(this, List.of());
+        }
 
         BeamTypeConditionProfile(RecipeType<?> recipeType,
                 Function<RegistryAccess, Function<RecipeHolder<?>, RecipeHolder<FocusingRecipe>>> converter) {
             this(r -> r.value().getType().equals(recipeType), converter);
         }
 
-        BeamTypeConditionProfile(Collection<? extends RecipeHolder<FocusingRecipe>> recipes) {
+        BeamTypeConditionProfile(Collection<RecipeHolder<FocusingRecipe>> recipes) {
             this.recipePredicate = null;
             this.converter = null;
-            this.recipes = recipes;
+            this.recipesGenerator = (a) -> recipes;
         }
 
         BeamTypeConditionProfile(Predicate<RecipeHolder<?>> recipePredicate,
                 Function<RegistryAccess, Function<RecipeHolder<?>, RecipeHolder<FocusingRecipe>>> converter) {
             this.recipePredicate = recipePredicate;
             this.converter = converter;
-            this.recipes = null;
+            this.recipesGenerator = server -> {
+                ArrayList<RecipeHolder<FocusingRecipe>> recipes = new ArrayList<>();
+                server.getRecipeManager().getRecipes().forEach(recipe -> {
+                    if (this.recipePredicate.test(recipe)) {
+                        recipes.add(this.getConverter(server.registryAccess()).apply(recipe));
+                    }
+                });
+                return recipes;
+            };
         }
 
         public Function<RecipeHolder<?>, RecipeHolder<FocusingRecipe>> getConverter(RegistryAccess registryAccess) {
@@ -291,11 +313,10 @@ public class FocusingRecipeParams extends ProcessingRecipeParams {
                 BeamHelper.BeamType beamType) {
             List<RecipeHolder<FocusingRecipe>> list = new ArrayList<>();
             for (BeamTypeConditionProfile profile : BeamTypeConditionProfile.values()) {
-                if (profile.recipes != null) {
-                    list.addAll(profile.recipes.stream()
-                            .filter(r -> r.value().matches(recipeWrapper, level) && r.value().beamTypeCondition.test(beamType))
-                            .toList());
-                }
+                list.addAll(profile.getRecipes().stream()
+                        .filter(r -> r.value().matches(recipeWrapper, level)
+                                && r.value().beamTypeCondition.test(beamType))
+                        .toList());
             }
 
             return Optional.ofNullable(list.isEmpty() ? null : list.get(0));

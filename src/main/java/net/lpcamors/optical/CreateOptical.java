@@ -19,15 +19,20 @@ import net.lpcamors.optical.data.CODataGen;
 import net.lpcamors.optical.data.COLang;
 import net.lpcamors.optical.items.COItems;
 import net.lpcamors.optical.network.COPackets;
+import net.lpcamors.optical.recipes.FocusingRecipeParams.BeamTypeConditionProfile;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
 @Mod(CreateOptical.ID)
 public class CreateOptical {
@@ -54,6 +59,8 @@ public class CreateOptical {
 
         REGISTRATE.registerEventListeners(modEventBus);
 
+        IEventBus forgeEventBus = NeoForge.EVENT_BUS;
+        
         COBlocks.initiate();
         COItems.initiate();
         COBlockEntities.initiate();
@@ -65,6 +72,8 @@ public class CreateOptical {
         COPackets.register();
         COConfigs.register(ModLoadingContext.get(), container);
 
+        forgeEventBus.addListener(CreateOptical::onServerStarting);
+        forgeEventBus.addListener(CreateOptical::onDatapackSync);
         modEventBus.addListener(EventPriority.HIGHEST, CODataGen::gatherDataHighPriority);
         modEventBus.addListener(EventPriority.LOWEST, CODataGen::gatherData);
     }
@@ -78,5 +87,17 @@ public class CreateOptical {
             ThermalOpticalSourceBlockEntity.registerCapabilities(event);
 
         }
+    }
+
+    private static void onServerStarting(ServerStartingEvent event) {
+        var server = event.getServer();
+        BeamTypeConditionProfile.rebuild(server);
+    }
+
+    private static void onDatapackSync(OnDatapackSyncEvent event) {
+        if (event.getPlayer() != null)
+            return;
+        var server = event.getPlayerList().getServer();
+        BeamTypeConditionProfile.rebuild(server);
     }
 }

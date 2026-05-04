@@ -76,7 +76,7 @@ public class BeamCondenserBlockEntity extends GenericOpticalSourceBlockEntity {
         });
 
         if (!prop.isEmpty()) {
-            this.beamProperties = new BeamProperties.Builder(blockFacing, prop).build();
+            this.beamProperties = new BeamProperties.Builder(blockFacing, prop).isDirty(true).build();
         } else {
             this.beamProperties = null;
         }

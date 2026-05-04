@@ -69,6 +69,7 @@ public class BeamHelper {
                     SIGNALS_CODEC.decode(buffer),
                     buffer.readBoolean(),
                     buffer.readBoolean(),
+                    buffer.readBoolean(),
                     buffer.readBoolean());
         }
 
@@ -82,6 +83,7 @@ public class BeamHelper {
             buffer.writeBoolean(prop.spin());
             buffer.writeBoolean(prop.forceVisibility());
             buffer.writeBoolean(prop.forcePenetration());
+            buffer.writeBoolean(prop.isDirty());
 
         }
     };
@@ -97,11 +99,11 @@ public class BeamHelper {
 
     public static record BeamProperties(float intensity, Direction direction, BeamType beamType,
             BeamPolarization polarization, Vec3i color, List<BeamSignal> signal, boolean spin, boolean forceVisibility,
-            boolean forcePenetration) {
+            boolean forcePenetration, boolean isDirty) {
 
         public static BeamProperties BASE = new BeamProperties(1, Direction.UP, BeamType.VISIBLE,
                 BeamPolarization.RANDOM,
-                COUtils.getColor(DyeColor.LIGHT_GRAY), List.of(), false, false, false);
+                COUtils.getColor(DyeColor.LIGHT_GRAY), List.of(), false, false, false, false);
 
         public float getEffectiveSpeed() {
             return SPEED_CONSTANT * this.intensity * (this.spin ? 1 : -1);
@@ -141,6 +143,7 @@ public class BeamHelper {
             tagInts.add(IntTag.valueOf(this.forcePenetration ? 1 : 0));
             tagInts.add(IntTag.valueOf(this.beamType.ordinal()));
             tagInts.add(IntTag.valueOf(this.spin ? 1 : 0));
+            tagInts.add(IntTag.valueOf(this.isDirty ? 1 : 0));
 
             listTag.add(tagFloats);
             listTag.add(tagInts);
@@ -168,13 +171,14 @@ public class BeamHelper {
                 ListTag tagSignals = listTag.getList(3);
 
                 float intensity = tagFloats.getFloat(0);
-                BeamPolarization polarization = BeamPolarization.values()[tagInts.getInt(0)];
                 Vec3i color = NBTHelper.readVec3i(tagColor);
+                BeamPolarization polarization = BeamPolarization.values()[tagInts.getInt(0)];
                 Direction direction = Direction.values()[tagInts.getInt(1)];
-                BeamType beamType = BeamType.values()[tagInts.getInt(4)];
-                boolean spin = tagInts.getInt(5) != 0;
                 boolean forceVisibility = tagInts.getInt(2) == 1;
                 boolean forcePenetration = tagInts.getInt(3) == 1;
+                BeamType beamType = BeamType.values()[tagInts.getInt(4)];
+                boolean spin = tagInts.getInt(5) != 0;
+                boolean isDirty = tagInts.getInt(6) != 0;
                 List<BeamSignal> signal = List.of();
                 if (tagSignals != null) {
                     signal = NBTHelper.readCompoundList(tagSignals, BeamSignal::read).stream()
@@ -182,7 +186,7 @@ public class BeamHelper {
 
                 }
                 return Optional.of(new BeamProperties(intensity, direction, beamType, polarization, color, signal, spin,
-                        forceVisibility, forcePenetration));
+                        forceVisibility, forcePenetration, isDirty));
 
             } catch (Exception e) {
                 CreateOptical.LOGGER
@@ -201,6 +205,7 @@ public class BeamHelper {
             private Vec3i color;
             private ArrayList<BeamSignal> signal;
             private boolean spin;
+            private boolean dirty = false;
             private boolean forceVisibility;
             private boolean forcePenetration;
 
@@ -213,7 +218,7 @@ public class BeamHelper {
                 this.signal = new ArrayList<>(prop.signal());
                 this.spin = prop.spin();
                 this.forceVisibility = prop.forceVisibility();
-                this.forcePenetration = prop.forcePenetration();
+                this.dirty = prop.isDirty();
             }
 
             public Builder(Direction direction, List<BeamProperties> beamProperties) {
@@ -249,7 +254,6 @@ public class BeamHelper {
                 }
                 this.color = this.color == null ? COUtils.getColor(DyeColor.GRAY) : this.color;
                 this.forcePenetration = this.beamType.canPassThroughEntities();
-
             }
 
             public Builder intensity(float intensity) {
@@ -278,9 +282,14 @@ public class BeamHelper {
                 return this;
             }
 
+            public Builder isDirty(boolean isDirty) {
+                this.dirty = isDirty;
+                return this;
+            }
+
             public BeamProperties build() {
                 return new BeamProperties(this.intensity, this.direction, this.beamType, this.polarization, this.color,
-                        this.signal, this.spin, this.forceVisibility, this.forcePenetration);
+                        this.signal, this.spin, this.forceVisibility, this.forcePenetration, this.dirty);
             }
 
         }
